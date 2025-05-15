@@ -32,24 +32,39 @@ export default function Login({ onLogin }) {
   };
 
   return (
-    <form onSubmit={handleLogin} className="p-4 space-y-4 max-w-md mx-auto bg-white shadow-md rounded">
-      <h2 className="text-xl font-semibold">Login</h2>
-      <label>Email</label>
-      <input
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="Email"
-        className="input w-full border p-2 rounded"
-      />
-      <label>Password</label>
-      <input
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Password"
-        type="password"
-        className="input w-full border p-2 rounded"
-      />
-      <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded w-full">Login</button>
+    <form
+      onSubmit={handleLogin}
+      className="p-6 space-y-4 max-w-md mx-auto bg-white shadow-lg rounded-lg border border-teal-100"
+    >
+      <h2 className="text-2xl font-bold text-teal-800 text-center">Login</h2>
+
+      <div>
+        <label className="block text-teal-700 font-medium mb-1">Email</label>
+        <input
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+          className="w-full border border-teal-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+        />
+      </div>
+
+      <div>
+        <label className="block text-teal-700 font-medium mb-1">Password</label>
+        <input
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
+          type="password"
+          className="w-full border border-teal-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+        />
+      </div>
+
+      <button
+        type="submit"
+        className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded w-full transition"
+      >
+        Login
+      </button>
     </form>
   );
 }

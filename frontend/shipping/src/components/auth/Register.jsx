@@ -38,29 +38,74 @@ export default function Register() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 space-y-4 max-w-md mx-auto bg-white shadow-md rounded">
-      <h2 className="text-xl font-semibold">Register</h2>
-      <label>Username</label>
-      <input name="username" onChange={handleChange} placeholder="Username" className="input w-full border p-2 rounded" />
-      <label>Email</label>
-      <input name="email" onChange={handleChange} placeholder="Email" type="email" className="input w-full border p-2 rounded" />
-      <label>Password</label>
-      <input name="password" onChange={handleChange} placeholder="Password" type="password" className="input w-full border p-2 rounded" />
+    <form
+      onSubmit={handleSubmit}
+      className="p-6 space-y-4 max-w-md mx-auto bg-white shadow-lg rounded-lg border border-teal-100"
+    >
+      <h2 className="text-2xl font-bold text-teal-800 text-center">Register</h2>
 
-      <label>Role</label>
-      <select name="role" onChange={handleChange} className="input w-full border p-2 rounded">
-        <option value="customer">Customer</option>
-        <option value="agent">Agent</option>
-      </select>
+      <div>
+        <label className="block text-teal-700 font-medium mb-1">Username</label>
+        <input
+          name="username"
+          onChange={handleChange}
+          placeholder="Username"
+          className="w-full border border-teal-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+        />
+      </div>
+
+      <div>
+        <label className="block text-teal-700 font-medium mb-1">Email</label>
+        <input
+          name="email"
+          onChange={handleChange}
+          type="email"
+          placeholder="Email"
+          className="w-full border border-teal-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+        />
+      </div>
+
+      <div>
+        <label className="block text-teal-700 font-medium mb-1">Password</label>
+        <input
+          name="password"
+          onChange={handleChange}
+          type="password"
+          placeholder="Password"
+          className="w-full border border-teal-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+        />
+      </div>
+
+      <div>
+        <label className="block text-teal-700 font-medium mb-1">Role</label>
+        <select
+          name="role"
+          onChange={handleChange}
+          className="w-full border border-teal-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+        >
+          <option value="customer">Customer</option>
+          <option value="agent">Agent</option>
+        </select>
+      </div>
 
       {formData.role === "agent" && (
-        <>
-          <label>Upload Document</label>
-          <input name="document" type="file" onChange={handleChange} className="input w-full border p-2 rounded" />
-        </>
+        <div>
+          <label className="block text-teal-700 font-medium mb-1">Upload Document</label>
+          <input
+            name="document"
+            type="file"
+            onChange={handleChange}
+            className="w-full border border-teal-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+          />
+        </div>
       )}
 
-      <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded w-full">Register</button>
+      <button
+        type="submit"
+        className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded w-full transition"
+      >
+        Register
+      </button>
     </form>
   );
 }
