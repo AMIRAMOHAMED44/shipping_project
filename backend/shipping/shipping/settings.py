@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'plans',
     'shipments',
     'users',
+    'home',
     'rest_framework_simplejwt',
 
 ]
