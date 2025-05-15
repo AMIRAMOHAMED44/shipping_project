@@ -1,6 +1,8 @@
  pip install django djangorestframework django-cors-headers
  pip install psycopg2
  pip install django-cors-headers
+ pip install djangorestframework-simplejwt
+
 
 asgiref==3.8.1
 djangorestframework_simplejwt==5.5.0

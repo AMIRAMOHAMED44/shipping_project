@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'shipments',
     'users',
     'rest_framework_simplejwt',
+    'accounts'
 
 ]
 
@@ -114,7 +115,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'shipping_app',
         'USER':'postgres',
-        'PASSWORD':'123',
+        'PASSWORD':'555',
         'HOST':'localhost',
         'PORT':5432
 
