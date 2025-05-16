@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
-from shipping.shipments.models import City
-from shipping.shipments.utils import EGYPTIAN_CITIES, get_region
+#from shipping.shipments.models import City
+from shipments.models import City
+from shipments.utils import EGYPTIAN_CITIES, get_region
 
 
 class Command(BaseCommand):
