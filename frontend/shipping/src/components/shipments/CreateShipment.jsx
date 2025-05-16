@@ -88,79 +88,79 @@ export default function CreateShipment() {
             ✅ Shipment created successfully!
           </div>
         )}
-
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block mb-1 text-sm sm:text-base font-medium text-gray-700">Origin City</label>
-            <select
-              name="origin"
-              value={formData.origin}
-              onChange={handleChange}
-              className="w-full px-3 sm:px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500 text-sm sm:text-base"
-              required
-            >
-              <option value="">Select Origin</option>
-              {cities.map(city => (
-                <option key={`origin-${city.id}`} value={city.name}>{city.name}</option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block mb-1 text-sm sm:text-base font-medium text-gray-700">Destination City</label>
-            <select
-              name="destination"
-              value={formData.destination}
-              onChange={handleChange}
-              className="w-full px-3 sm:px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500 text-sm sm:text-base"
-              required
-            >
-              <option value="">Select Destination</option>
-              {cities.map(city => (
-                <option key={`dest-${city.id}`} value={city.name}>{city.name}</option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block mb-1 text-sm sm:text-base font-medium text-gray-700">
-              Weight (kg) <span className="text-gray-400 text-xs sm:text-sm">(Min: 0.1kg)</span>
-            </label>
-            <input
-              type="number"
-              name="weight"
-              min="0.1"
-              step="0.1"
-              value={formData.weight}
-              onChange={handleChange}
-              className="w-full px-3 sm:px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500 text-sm sm:text-base"
-              placeholder="e.g. 2.5"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block mb-1 text-sm sm:text-base font-medium text-gray-700">Description</label>
-            <textarea
-              name="description"
-              rows={3}
-              value={formData.description}
-              onChange={handleChange}
-              className="w-full px-3 sm:px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500 text-sm sm:text-base "
-              placeholder="e.g. Books and clothes"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className={`w-full py-3 px-4 rounded-lg text-white font-semibold transition duration-300 text-sm sm:text-base ${
-              isLoading ? 'bg-teal-400 cursor-not-allowed' : 'bg-teal-600 hover:bg-teal-700'
-            }`}
+      <form onSubmit={handleSubmit} className="space-y-5 text-lg">
+        <div>
+          <label className="block mb-1 font-medium text-gray-700">Origin City</label>
+          <select
+            name="origin"
+            value={formData.origin}
+            onChange={handleChange}
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500"
+            required
           >
-            {isLoading ? 'Processing...' : 'Create Shipment'}
-          </button>
-        </form>
+            <option value="">Select Origin</option>
+            {cities.map(city => (
+              <option key={`origin-${city.id}`} value={city.name}>{city.name}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block mb-1 font-medium text-gray-700">Destination City</label>
+          <select
+            name="destination"
+            value={formData.destination}
+            onChange={handleChange}
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500"
+            required
+          >
+            <option value="">Select Destination</option>
+            {cities.map(city => (
+              <option key={`dest-${city.id}`} value={city.name}>{city.name}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block mb-1 font-medium text-gray-700">
+            Weight (kg) <span className="text-gray-500 text-base">(Min: 0.1kg)</span>
+          </label>
+          <input
+            type="number"
+            name="weight"
+            min="0.1"
+            step="0.1"
+            value={formData.weight}
+            onChange={handleChange}
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500"
+            placeholder="e.g. 2.5"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block mb-1 font-medium text-gray-700">Description</label>
+          <textarea
+            name="description"
+            rows={3}
+            value={formData.description}
+            onChange={handleChange}
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500"
+            placeholder="e.g. Books and clothes"
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={isLoading}
+          className={`w-full py-3 px-4 rounded-lg text-white font-semibold transition duration-300 ${
+            isLoading ? 'bg-teal-400 cursor-not-allowed' : 'bg-teal-600 hover:bg-teal-700'
+          }`}
+        >
+          {isLoading ? 'Processing...' : 'Create Shipment'}
+        </button>
+      </form>
+
 
         {createdShipment && (
           <div className="mt-6 p-5 bg-teal-50 border border-teal-200 rounded-xl text-sm sm:text-base">

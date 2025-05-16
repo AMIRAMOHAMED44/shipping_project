@@ -32,39 +32,57 @@ export default function Login({ onLogin }) {
   };
 
   return (
-    <form
-      onSubmit={handleLogin}
-      className="p-6 space-y-4 max-w-md mx-auto bg-white shadow-lg rounded-lg border border-teal-100"
-    >
-      <h2 className="text-2xl font-bold text-teal-800 text-center">Login</h2>
-
-      <div>
-        <label className="block text-teal-700 font-medium mb-1">Email</label>
-        <input
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
-          className="w-full border border-teal-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
-        />
-      </div>
-
-      <div>
-        <label className="block text-teal-700 font-medium mb-1">Password</label>
-        <input
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
-          type="password"
-          className="w-full border border-teal-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
-        />
-      </div>
-
-      <button
-        type="submit"
-        className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded w-full transition"
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-white flex items-center justify-center px-4 sm:px-6 md:px-8 py-10">
+      <form
+        onSubmit={handleLogin}
+        className="w-full max-w-full sm:max-w-lg md:max-w-xl bg-white shadow-2xl rounded-2xl p-6 sm:p-10 md:p-12 border border-teal-100 animate-fade-in"
       >
-        Login
-      </button>
-    </form>
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-teal-700 mb-6 sm:mb-8">
+          🚪 Login
+        </h2>
+
+        <div className="mb-5">
+          <label className="block text-teal-800 font-semibold mb-1 text-base sm:text-lg">
+            Email
+          </label>
+          <input
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
+            type="email"
+            required
+            className="w-full px-4 py-2 sm:px-5 sm:py-3 rounded-lg border border-teal-300 focus:outline-none focus:ring-2 focus:ring-teal-500 text-base"
+          />
+        </div>
+
+        <div className="mb-6">
+          <label className="block text-teal-800 font-semibold mb-1 text-base sm:text-lg">
+            Password
+          </label>
+          <input
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+            type="password"
+            required
+            className="w-full px-4 py-2 sm:px-5 sm:py-3 rounded-lg border border-teal-300 focus:outline-none focus:ring-2 focus:ring-teal-500 text-base"
+          />
+        </div>
+
+        <button
+          type="submit"
+          className="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 sm:py-4 text-base sm:text-lg rounded-lg transition duration-300 shadow-md hover:shadow-lg"
+        >
+          Log In
+        </button>
+
+        <p className="text-center text-sm sm:text-base text-gray-500 mt-5">
+          Forgot password?{" "}
+          <a href="#" className="text-teal-600 hover:underline">
+            Reset it
+          </a>
+        </p>
+      </form>
+    </div>
   );
 }
