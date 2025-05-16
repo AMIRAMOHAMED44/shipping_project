@@ -115,9 +115,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'shipping_app',
         'USER':'postgres',
-        'PASSWORD':'123',
+        'PASSWORD':'555',
         'HOST':'localhost',
-        'PORT':5432
+        'PORT':5434
 
     }
 }
