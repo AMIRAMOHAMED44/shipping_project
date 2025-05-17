@@ -18,10 +18,8 @@ export default function Login({ onLogin }) {
       if (access && refresh) {
         localStorage.setItem("access", access);
         localStorage.setItem("refresh", refresh);
-        console.log("Access Token:", access);
-        console.log("Refresh Token:", refresh);
         alert("Login successful");
-        onLogin?.(); // Optional callback
+        onLogin();  // نبلغ الاب إن اللوجين تم
       } else {
         alert("Login failed: Tokens missing");
       }
@@ -32,24 +30,19 @@ export default function Login({ onLogin }) {
   };
 
   return (
-    <form onSubmit={handleLogin} className="p-4 space-y-4 max-w-md mx-auto bg-white shadow-md rounded">
-      <h2 className="text-xl font-semibold">Login</h2>
-      <label>Email</label>
+    <form onSubmit={handleLogin}>
       <input
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="Email"
-        className="input w-full border p-2 rounded"
       />
-      <label>Password</label>
       <input
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         placeholder="Password"
         type="password"
-        className="input w-full border p-2 rounded"
       />
-      <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded w-full">Login</button>
+      <button type="submit">Login</button>
     </form>
   );
 }

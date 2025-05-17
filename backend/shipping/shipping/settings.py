@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     'users',
     'rest_framework_simplejwt',
     'accounts'
+    
+
 
 ]
 
@@ -85,6 +87,15 @@ CORS_ALLOW_HEADERS = [
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10
+    
+}
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
 }
 
 ROOT_URLCONF = 'shipping.urls'
