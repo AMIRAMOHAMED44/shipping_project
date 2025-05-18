@@ -1,9 +1,10 @@
 import React from "react";
 import CompanyIntro from "./CompanyIntro";
 import Features from "./Features";
-import Plans from "./Plans";
+import Plans from "../customer-dashboard/plans";
 import Reviews from "./Reviews";
 import Contact from "./Contact";
+
 
 export default function Home() {
     return (

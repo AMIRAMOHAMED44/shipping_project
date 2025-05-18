@@ -1,36 +1,20 @@
-import { useState, useEffect, useRef } from "react";
+/* src/components/Header/Header.jsx */
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../auth/authContext";
 
 export default function Header() {
+  const { isAuth, logout } = useAuth();     // ← السياق
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const dropdownRef = useRef(null);
-  const navigate = useNavigate();
+  const [mobileOpen, setMobileOpen]       = useState(false);
+  const navigate                           = useNavigate();
 
-  const toggleDropdown = () => setDropdownOpen((prev) => !prev);
-  const toggleMobileMenu = () => setMobileMenuOpen((prev) => !prev);
+  const toggleDropdown  = () => setDropdownOpen((p) => !p);
+  const toggleMobile    = () => setMobileOpen((p) => !p);
 
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setDropdownOpen(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  useEffect(() => {
-    const token = localStorage.getItem("access");
-    setIsLoggedIn(!!token);
-  }, []);
-25
   const handleLogout = () => {
-    localStorage.removeItem("access");
-    localStorage.removeItem("refresh");
-    setIsLoggedIn(false);
+    localStorage.removeItem("refresh");    // نمسح refresh فقط
+    logout();                              // يحذف access من الـ context
     navigate("/login");
   };
 
@@ -44,30 +28,34 @@ export default function Header() {
           Ship27
         </Link>
 
+        {/* Mobile burger */}
         <button
           className="md:hidden text-3xl focus:outline-none"
-          onClick={toggleMobileMenu}
+          onClick={toggleMobile}
         >
           ☰
         </button>
 
-        {/* Desktop Navigation */}
+        {/* Desktop nav */}
         <nav className="hidden md:flex space-x-6 text-lg font-semibold items-center">
-          <div className="relative" ref={dropdownRef}>
-            {isLoggedIn && (
+          {/* Shipments dropdown */}
+          <div className="relative">
+            {isAuth && (
               <Link
                 to="/dashboard"
-                className="hover:underline hover:text-yellow-400 transition-colors duration-300"
+                className="hover:underline hover:text-yellow-400 transition"
               >
                 Dashboard
               </Link>
             )}
+
             <button
               onClick={toggleDropdown}
-              className="hover:underline hover:text-yellow-400 transition-colors duration-300"
+              className="hover:underline hover:text-yellow-400 transition"
             >
               Shipments
             </button>
+
             {dropdownOpen && (
               <div className="absolute top-full mt-2 bg-white text-gray-800 rounded-md shadow-lg w-40 z-50">
                 <ul className="py-2">
@@ -92,25 +80,15 @@ export default function Header() {
             )}
           </div>
 
-          {!isLoggedIn ? (
+          {!isAuth ? (
             <>
-              <Link
-                to="/login"
-                className="hover:underline hover:text-yellow-400 transition-colors duration-300"
-              >
-                Login
-              </Link>
-              <Link
-                to="/register"
-                className="hover:underline hover:text-yellow-400 transition-colors duration-300"
-              >
-                Register
-              </Link>
+              <Link to="/login"    className="hover:underline hover:text-yellow-400 transition">Login</Link>
+              <Link to="/register" className="hover:underline hover:text-yellow-400 transition">Register</Link>
             </>
           ) : (
             <button
               onClick={handleLogout}
-              className="hover:underline hover:text-yellow-400 transition-colors duration-300"
+              className="hover:underline hover:text-yellow-400 transition"
             >
               Logout
             </button>
@@ -118,18 +96,20 @@ export default function Header() {
         </nav>
       </div>
 
-      {/* Mobile Menu */}
-      {mobileMenuOpen && (
+      {/* Mobile menu */}
+      {mobileOpen && (
         <div className="md:hidden px-4 pb-4 space-y-3 text-lg font-semibold bg-teal-500">
-          <details className="block">
-            {isLoggedIn && (
-              <Link
-                to="/dashboard"
-                className="block hover:text-yellow-300 transition"
-              >
-                Dashboard
-              </Link>
-            )}
+          {isAuth && (
+            <Link
+              to="/dashboard"
+              className="block hover:text-yellow-300 transition"
+              onClick={() => setMobileOpen(false)}
+            >
+              Dashboard
+            </Link>
+          )}
+
+          <details>
             <summary className="cursor-pointer hover:text-yellow-300 transition">
               Shipments
             </summary>
@@ -137,32 +117,24 @@ export default function Header() {
               <Link
                 to="/shipments/create"
                 className="block hover:text-yellow-300 transition"
+                onClick={() => setMobileOpen(false)}
               >
                 Create
               </Link>
               <Link
                 to="/shipments/list"
                 className="block hover:text-yellow-300 transition"
+                onClick={() => setMobileOpen(false)}
               >
                 List
               </Link>
             </div>
           </details>
 
-          {!isLoggedIn ? (
+          {!isAuth ? (
             <>
-              <Link
-                to="/login"
-                className="block hover:text-yellow-300 transition"
-              >
-                Login
-              </Link>
-              <Link
-                to="/register"
-                className="block hover:text-yellow-300 transition"
-              >
-                Register
-              </Link>
+              <Link to="/login" className="block hover:text-yellow-300 transition" onClick={() => setMobileOpen(false)}>Login</Link>
+              <Link to="/register" className="block hover:text-yellow-300 transition" onClick={() => setMobileOpen(false)}>Register</Link>
             </>
           ) : (
             <button
