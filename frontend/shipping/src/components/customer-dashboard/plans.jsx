@@ -5,35 +5,102 @@ const plans = [
     id: 'regular',
     name: 'Regular',
     price: 0,
-    features: ['Basic shipping', 'Weight limit: 10kg'],
+    features: [
+      'Basic shipping',
+      'Shipping weight limit up to 5 kg',
+    ],
+    current: true,
   },
   {
     id: 'premium',
     name: 'Premium',
-    price: 29.99,
-    features: ['Priority shipping', 'Weight limit: 50kg', 'Discounts on shipments'],
+    price: 50,
+    features: [
+      'Shipping weight limit up to 20 kg',
+      'Real-time shipment tracking',
+      'Unlimited shipments',
+      'Phone and email customer support',
+      'Discounts on bulk shipments',
+    ],
   },
   {
     id: 'business',
     name: 'Business',
-    price: 99.99,
-    features: ['All Premium features', 'Weight limit: 200kg', 'Dedicated support'],
+    price: 150,
+    features: [
+      'Shipping weight limit up to 50 kg',
+      'Advanced tracking with instant alerts',
+      'Unlimited priority shipments',
+      '24/7 support via phone, email, and chat',
+      'Detailed reports and monthly shipment analytics',
+      'Multiple user accounts per company',
+    ],
   },
 ];
 
 const UpgradePlans = ({ onSelectPlan }) => {
   return (
-    <div style={{ maxWidth: 800, margin: 'auto', padding: 20 }}>
-      <h2>Upgrade Your Plan</h2>
-      <div style={{ display: 'flex', gap: 20, justifyContent: 'center' }}>
-        {plans.map(plan => (
-          <div key={plan.id} style={{ border: '1px solid #ddd', borderRadius: 8, padding: 20, width: 220 }}>
-            <h3>{plan.name}</h3>
-            <p><strong>Price:</strong> ${plan.price}</p>
-            <ul>
-              {plan.features.map((feature, i) => <li key={i}>{feature}</li>)}
-            </ul>
-            <button onClick={() => onSelectPlan(plan.id)}>Choose Plan</button>
+    <div style={{ maxWidth: 1200, margin: 'auto', padding: '40px 20px', fontFamily: 'sans-serif' }}>
+      <h1 style={{ textAlign: 'center', color: '#009689', marginBottom: 40 , fontSize: 30,fontWeight: 'bold'}}>Upgrade Your Shipping Plan</h1>
+      <div style={{ display: 'flex', gap: 30, justifyContent: 'center', flexWrap: 'wrap' }}>
+        {plans.map((plan) => (
+          <div
+            key={plan.id}
+            style={{
+              border: plan.current ? '2px solid #009689' : '1px solid #ccc',
+              borderRadius: 12,
+              padding: 30,
+              width: 350,
+              backgroundColor: plan.current ? '#e0f7f5' : '#fff',
+              boxShadow: '0 4px 10px rgba(0,0,0,0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              height: 480,
+            }}
+          >
+            <div>
+              <h3 style={{ color: '#009689', fontSize: 24, marginBottom: 10 }}>{plan.name}</h3>
+              <p style={{ fontSize: 18, fontWeight: 'bold' }}>${plan.price}</p>
+              <ul style={{ paddingLeft: 20, marginBottom: 20 }}>
+                {plan.features.map((feature, i) => (
+                  <li key={i} style={{ marginBottom: 8 }}>{feature}</li>
+                ))}
+              </ul>
+            </div>
+            <div style={{ marginTop: 'auto' }}>
+              {plan.current ? (
+                <button
+                  style={{
+                    padding: '10px 20px',
+                    backgroundColor: '#ccc',
+                    border: 'none',
+                    borderRadius: 6,
+                    color: '#333',
+                    cursor: 'not-allowed',
+                    width: '100%',
+                  }}
+                  disabled
+                >
+                  Current Plan
+                </button>
+              ) : (
+                <button
+                  onClick={() => onSelectPlan(plan.id)}
+                  style={{
+                    padding: '10px 20px',
+                    backgroundColor: '#009689',
+                    border: 'none',
+                    borderRadius: 6,
+                    color: '#fff',
+                    cursor: 'pointer',
+                    width: '100%',
+                  }}
+                >
+                  Choose Plan
+                </button>
+              )}
+            </div>
           </div>
         ))}
       </div>
