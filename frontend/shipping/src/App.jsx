@@ -11,12 +11,17 @@ import ShipmentList from "./components/shipments/ShipmentList";
 import UpgradePlans from "./components/customer-dashboard/plans";
 import Dashboard from "./components/customer-dashboard/dashboard";
 import axios from "axios";
+import { PayPalScriptProvider } from "@paypal/react-paypal-js";
+
 
 function App() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [view, setView] = useState("home");
 
+  // <PayPalScriptProvider options={{ "client-id": "AeR1Lb5gdCtQfg_6YW3fzK57h4xK-aOlLLaVK4AYScutG3zZ82xkMw0ZC06HHezF-WaSdEYl454IPhBg" }}>
+  //   <App />
+  // </PayPalScriptProvider>
  
 
   useEffect(() => {
