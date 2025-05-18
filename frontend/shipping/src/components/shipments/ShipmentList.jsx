@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import bgImage from '../../assets/22.jpg';
 
 export default function ShipmentList() {
   const [shipments, setShipments] = useState([]);
@@ -46,22 +47,33 @@ export default function ShipmentList() {
   if (shipments.length === 0) return <div className="text-center text-gray-500">No shipments found</div>;
 
   return (
-    <div className="max-w-3xl mx-auto p-6 mt-8 bg-white/80 backdrop-blur-md rounded-2xl shadow-lg border border-teal-200">
-      <h2 className="text-2xl font-bold text-teal-800 mb-6 border-b pb-2 border-teal-100">
+    <div
+      className="min-h-screen bg-cover bg-center bg-no-repeat p-6"
+      style={{ backgroundImage: `url(${bgImage})` }}
+    >
+      <h2 className="text-3xl font-bold text-white mb-8 text-center drop-shadow-md">
         📦 Your Shipments
       </h2>
-      <div className="space-y-6">
+
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
         {shipments.map(shipment => (
-          <div key={shipment.id} className="bg-white p-5 rounded-xl shadow-md border border-teal-100 hover:shadow-lg transition duration-300">
+          <div
+            key={shipment.id}
+            className="bg-white/80 backdrop-blur-md p-5 rounded-xl shadow-md border border-teal-100 transform transition duration-300 hover:scale-[1.02] hover:shadow-lg"
+          >
             <div className="flex justify-between items-center mb-2">
               <span className="text-lg font-semibold text-teal-700">
                 #{shipment.tracking_id}
               </span>
-              <span className={`px-3 py-1 text-xs font-medium rounded-full shadow-sm ${
-                shipment.status === 'PENDING' ? 'bg-amber-100 text-amber-700' :
-                shipment.status === 'IN_TRANSIT' ? 'bg-teal-100 text-teal-700' :
-                'bg-gray-100 text-gray-700'
-              }`}>
+              <span
+                className={`px-3 py-1 text-xs font-medium rounded-full shadow-sm ${
+                  shipment.status === 'PENDING'
+                    ? 'bg-amber-100 text-amber-700'
+                    : shipment.status === 'IN_TRANSIT'
+                    ? 'bg-teal-100 text-teal-700'
+                    : 'bg-gray-100 text-gray-700'
+                }`}
+              >
                 {shipment.status.replace('_', ' ')}
               </span>
             </div>
@@ -75,7 +87,7 @@ export default function ShipmentList() {
             {shipment.status === 'PENDING' && (
               <button
                 onClick={() => cancelShipment(shipment.id)}
-                className="mt-3 inline-block text-sm text-red-600 hover:text-red-800 hover:underline transition"
+                className="mt-4 px-4 py-2 bg-red-100 text-red-700 rounded-md shadow-sm hover:bg-red-200 hover:text-red-800 transition"
               >
                 ❌ Cancel Shipment
               </button>
