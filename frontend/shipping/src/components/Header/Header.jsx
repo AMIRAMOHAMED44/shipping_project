@@ -1,17 +1,13 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { logout as logoutAction } from "../../redux/authSlice"; // غيّر المسار حسب مكان ملف الـ slice
+import AuthContext from "../../context/AuthContext.jsx";
 
 export default function Header() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-
-  // const { isLoggedIn } = useSelector((state) => state.auth);
-  const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
+  const { user, isAuthenticated, logout } = useContext(AuthContext);
 
   const toggleDropdown = () => setDropdownOpen((prev) => !prev);
   const toggleMobileMenu = () => setMobileMenuOpen((prev) => !prev);
@@ -28,9 +24,7 @@ export default function Header() {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("access");
-    localStorage.removeItem("refresh");
-    dispatch(logoutAction()); // لو عندك logout action في الـ Redux
+    logout(); // Use AuthContext logout
     navigate("/login");
   };
 
@@ -53,13 +47,23 @@ export default function Header() {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex space-x-6 text-lg font-semibold items-center">
-          {isLoggedIn && (
-            <Link
-              to="/dashboard"
-              className="hover:underline hover:text-yellow-400 transition"
-            >
-              Dashboard
-            </Link>
+          {isAuthenticated && (
+            <>
+              <Link
+                to="/dashboard"
+                className="hover:underline hover:text-yellow-400 transition"
+              >
+                Dashboard
+              </Link>
+              {user?.role === "customer" && (
+                <Link
+                  to="/upgrade-plans"
+                  className="hover:underline hover:text-yellow-400 transition"
+                >
+                  Upgrade Plans
+                </Link>
+              )}
+            </>
           )}
 
           <div className="relative" ref={dropdownRef}>
@@ -72,28 +76,32 @@ export default function Header() {
             {dropdownOpen && (
               <div className="absolute top-full mt-2 bg-white text-gray-800 rounded-md shadow-lg w-40 z-50">
                 <ul className="py-2">
-                  <li>
-                    <Link
-                      to="/shipments/create"
-                      className="block px-4 py-2 hover:bg-yellow-100 hover:text-teal-700 transition"
-                    >
-                      Create
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/shipments/list"
-                      className="block px-4 py-2 hover:bg-yellow-100 hover:text-teal-700 transition"
-                    >
-                      List
-                    </Link>
-                  </li>
+                  {(user?.role === "customer" || user?.role === "agent") && (
+                    <>
+                      <li>
+                        <Link
+                          to="/shipments/create"
+                          className="block px-4 py-2 hover:bg-yellow-100 hover:text-teal-700 transition"
+                        >
+                          Create
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="/shipments/list"
+                          className="block px-4 py-2 hover:bg-yellow-100 hover:text-teal-700 transition"
+                        >
+                          List
+                        </Link>
+                      </li>
+                    </>
+                  )}
                 </ul>
               </div>
             )}
           </div>
 
-          {!isLoggedIn ? (
+          {!isAuthenticated ? (
             <>
               <Link
                 to="/login"
@@ -122,13 +130,23 @@ export default function Header() {
       {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden px-4 pb-4 space-y-3 text-lg font-semibold bg-teal-500">
-          {isLoggedIn && (
-            <Link
-              to="/dashboard"
-              className="block hover:text-yellow-300 transition"
-            >
-              Dashboard
-            </Link>
+          {isAuthenticated && (
+            <>
+              <Link
+                to="/dashboard"
+                className="block hover:text-yellow-300 transition"
+              >
+                Dashboard
+              </Link>
+              {user?.role === "customer" && (
+                <Link
+                  to="/upgrade-plans"
+                  className="block hover:text-yellow-300 transition"
+                >
+                  Upgrade Plans
+                </Link>
+              )}
+            </>
           )}
 
           <details className="block">
@@ -136,22 +154,26 @@ export default function Header() {
               Shipments
             </summary>
             <div className="pl-4 mt-1 space-y-1">
-              <Link
-                to="/shipments/create"
-                className="block hover:text-yellow-300 transition"
-              >
-                Create
-              </Link>
-              <Link
-                to="/shipments/list"
-                className="block hover:text-yellow-300 transition"
-              >
-                List
-              </Link>
+              {(user?.role === "customer" || user?.role === "agent") && (
+                <>
+                  <Link
+                    to="/shipments/create"
+                    className="block hover:text-yellow-300 transition"
+                  >
+                    Create
+                  </Link>
+                  <Link
+                    to="/shipments/list"
+                    className="block hover:text-yellow-300 transition"
+                  >
+                    List
+                  </Link>
+                </>
+              )}
             </div>
           </details>
 
-          {!isLoggedIn ? (
+          {!isAuthenticated ? (
             <>
               <Link
                 to="/login"

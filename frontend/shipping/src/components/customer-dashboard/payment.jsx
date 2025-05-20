@@ -1,7 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import AuthContext from "../../context/AuthContext.jsx";
 
 export default function Checkout() {
+  const { api } = useContext(AuthContext);
   const plan = JSON.parse(localStorage.getItem("selectedPlan"));
   const navigate = useNavigate();
 
@@ -19,27 +21,26 @@ export default function Checkout() {
         });
       },
       onApprove: async (data, actions) => {
-        const details = await actions.order.capture();
-
-        // إرسال المعلومات للباك إند
-        const access = localStorage.getItem("access");
-        await fetch("http://localhost:8000/api/account/upgrade/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${access}`,
-          },
-          body: JSON.stringify({ plan_id: plan.id }),
-        });
-
-        navigate("/dashboard");
+        await actions.order.capture();
+        try {
+          await api.post("/account/upgrade/", { plan_id: plan.id });
+          localStorage.removeItem("selectedPlan");
+          navigate("/dashboard");
+        } catch (err) {
+          console.error("Upgrade failed:", err.response?.data || err.message);
+          alert("Plan upgrade failed.");
+        }
       },
     }).render("#paypal-button-container");
-  }, [plan]);
+  }, [plan, api, navigate]);
+
+  if (!plan) return <div className="text-center mt-10">No plan selected.</div>;
 
   return (
-    <div>
-      <h2>Confirm Payment for {plan.name} - ${plan.price}</h2>
+    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded shadow-md">
+      <h2 className="text-2xl font-bold mb-4">
+        Confirm Payment for {plan.name} - ${plan.price}
+      </h2>
       <div id="paypal-button-container"></div>
     </div>
   );

@@ -1,61 +1,54 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { useDispatch } from 'react-redux';
-import { login } from '../../redux/authSlice';
-export default function Login() {
-  const dispatch = useDispatch(); 
-  const getuserdata = async () => {
-    const accessToken = localStorage.getItem("access");
-    if (!accessToken) {
-      console.error("No access token found.");
-      return;
-    }
-    try {
-      const res = await axios.get("http://localhost:8000/api/account/account", {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      console.log("User Data:", res.data);
-      dispatch(login(res.data)); // Dispatching the user data to Redux store
-      // setUserData(res.data); // Uncomment if you want to store user data in local state
-    } catch (err) {
-      console.error("Error fetching user data:", err.response?.data || err.message);
-    }
-  };
-  
+import { useState, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import AuthContext from "../../context/AuthContext.jsx";
+import { toast } from "react-toastify";
 
+export default function Login() {
+  const { login, isLoading } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate(); 
+  const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+
+  const validateForm = () => {
+    const newErrors = {};
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email) {
+      newErrors.email = "Email is required";
+    } else if (!emailRegex.test(email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+    // Password validation
+    if (!password) {
+      newErrors.password = "Password is required";
+    } else if (password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters";
+    } else if (!/[A-Z]/.test(password)) {
+      newErrors.password = "Password must include at least one uppercase letter";
+    } else if (!/[a-z]/.test(password)) {
+      newErrors.password = "Password must include at least one lowercase letter";
+    } else if (!/[0-9]/.test(password)) {
+      newErrors.password = "Password must include at least one number";
+    } else if (!/[!@#$%^&*]/.test(password)) {
+      newErrors.password = "Password must include at least one special character";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
+    if (!validateForm()) return;
     try {
-      const res = await axios.post("http://localhost:8000/api/users/login/", {
-        email,
-        password,
-      });
-
-      const { access, refresh } = res.data;
-
-      if (access && refresh) {
-        localStorage.setItem("access", access);
-        localStorage.setItem("refresh", refresh);
-        // alert("Login successful");
-        console.log("Login successful");
-        await getuserdata(); // Fetch user data after successful login
-        navigate("/dashboard"); 
-      } else {
-        alert("Login failed: Tokens missing");
-      }
+      await login(email, password);
+      toast.success("Login successful!");
+      navigate("/dashboard");
     } catch (err) {
-      console.error(err.response?.data || err.message);
-      alert("Login failed");
+      toast.error(err.response?.data?.detail || "Login failed. Please try again.");
     }
-
   };
-  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 to-white flex items-center justify-center px-4 sm:px-6 md:px-8 py-10">
@@ -66,47 +59,65 @@ export default function Login() {
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-teal-700 mb-6 sm:mb-8">
           🚪 Login
         </h2>
-
         <div className="mb-5">
           <label className="block text-teal-800 font-semibold mb-1 text-base sm:text-lg">
             Email
           </label>
           <input
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setErrors((prev) => ({ ...prev, email: null }));
+            }}
             placeholder="you@example.com"
             type="email"
             required
-            className="w-full px-4 py-2 sm:px-5 sm:py-3 rounded-lg border border-teal-300 focus:outline-none focus:ring-2 focus:ring-teal-500 text-base"
+            className={`w-full px-4 py-2 sm:px-5 sm:py-3 rounded-lg border ${
+              errors.email ? "border-red-500" : "border-teal-300"
+            } focus:outline-none focus:ring-2 focus:ring-teal-500 text-base`}
           />
+          {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
         </div>
-
-        <div className="mb-6">
+        <div className="mb-6 relative">
           <label className="block text-teal-800 font-semibold mb-1 text-base sm:text-lg">
             Password
           </label>
           <input
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setErrors((prev) => ({ ...prev, password: null }));
+            }}
             placeholder="••••••••"
-            type="password"
+            type={showPassword ? "text" : "password"}
             required
-            className="w-full px-4 py-2 sm:px-5 sm:py-3 rounded-lg border border-teal-300 focus:outline-none focus:ring-2 focus:ring-teal-500 text-base"
+            className={`w-full px-4 py-2 sm:px-5 sm:py-3 rounded-lg border ${
+              errors.password ? "border-red-500" : "border-teal-300"
+            } focus:outline-none focus:ring-2 focus:ring-teal-500 text-base`}
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-9 text-teal-600 hover:text-teal-800"
+          >
+            {showPassword ? "Hide" : "Show"}
+          </button>
+          {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
         </div>
-
         <button
           type="submit"
-          className="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 sm:py-4 text-base sm:text-lg rounded-lg transition duration-300 shadow-md hover:shadow-lg"
+          disabled={isLoading}
+          className={`w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 sm:py-4 text-base sm:text-lg rounded-lg transition duration-300 shadow-md hover:shadow-lg ${
+            isLoading ? "opacity-50 cursor-not-allowed" : ""
+          }`}
         >
-          Log In
+          {isLoading ? "Logging in..." : "Log In"}
         </button>
-
         <p className="text-center text-sm sm:text-base text-gray-500 mt-5">
-          Forgot password?{" "}
-          <a href="#" className="text-teal-600 hover:underline">
-            Reset it
-          </a>
+          Don’t have an account?{" "}
+          <Link to="/register" className="text-teal-600 hover:underline">
+            Register
+          </Link>
         </p>
       </form>
     </div>

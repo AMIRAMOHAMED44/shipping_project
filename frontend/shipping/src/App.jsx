@@ -1,99 +1,122 @@
-import Home from "./components/home/Home";
-import Login from "./components/auth/Login";
-import Register from "./components/auth/Register";
-import Footer from "./components/Footer/Footer";
-import Navbar from "./components/Header/Header";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useEffect, useState } from "react";
-import CreateShipment from "./components/shipments/CreateShipment";
-import ShipmentList from "./components/shipments/ShipmentList";
-import UpgradePlans from "./components/customer-dashboard/plans";
-import Dashboard from "./components/customer-dashboard/dashboard";
-import axios from "axios";
-import { useDispatch } from "react-redux";
-import { setCredentials, logout } from "./redux/authSlice";
-import ProtectedRoute from "./components/auth/ProtectedRoute";
+import Home from "./components/home/Home.jsx";
+import Login from "./components/auth/Login.jsx";
+import Register from "./components/auth/Register.jsx";
+import Footer from "./components/Footer/Footer.jsx";
+import Navbar from "./components/Header/Header.jsx";
+import CreateShipment from "./components/shipments/CreateShipment.jsx";
+import ShipmentList from "./components/shipments/ShipmentList.jsx";
+import UpgradePlans from "./components/customer-dashboard/plans.jsx";
+import Dashboard from "./components/customer-dashboard/dashboard.jsx";
+import Payment from "./components/customer-dashboard/payment.jsx"; 
+import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
+import { useContext, useState, useEffect } from "react";
+import AuthContext from "./context/AuthContext.jsx";
+import { ToastContainer } from "react-toastify"; 
+import "react-toastify/dist/ReactToastify.css";
 
-function App() {
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true); // default true to wait before rendering
-  const [view, setView] = useState("home");
-
-  const dispatch = useDispatch();
-
-  const fetchDashboard = async () => {
-    const token = localStorage.getItem("access");
-    if (!token) {
-      console.log("No access token found");
-      setProfile(null);
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const res = await axios.get("http://localhost:8000/api/account/account/", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setProfile(res.data);
-      setView("dashboard");
-      dispatch(setCredentials({ user: res.data }));
-    } catch (err) {
-      console.error("Error fetching dashboard:", err.response?.data || err.message);
-      setProfile(null);
-      setView("login");
-    } finally {
-      setLoading(false);
-    }
-  };
+function ErrorBoundary({ children }) {
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
-    fetchDashboard();
+    const errorHandler = (error) => {
+      console.error("ErrorBoundary caught:", error);
+      setHasError(true);
+    };
+    window.addEventListener("error", errorHandler);
+    return () => window.removeEventListener("error", errorHandler);
   }, []);
 
-  const handleLoginSuccess = () => {
-    fetchDashboard();
-  };
+  if (hasError) {
+    return <div>Something went wrong. Please refresh the page.</div>;
+  }
 
-  const handleLogout = () => {
-    localStorage.removeItem("access");
-    setProfile(null);
-    dispatch(logout());
-    setView("login");
-  };
+  return children;
+}
+
+function App() {
+  const { user, isAuthenticated, isLoading, logout } = useContext(AuthContext);
 
   return (
     <BrowserRouter>
-      <div className="flex flex-col min-h-screen">
-        <Navbar />
-        <main className="flex-grow">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route
-              path="/login"
-              element={<Login onLogin={handleLoginSuccess} />}
-            />
-            <Route path="/register" element={<Register />} />
-            <Route path="/shipments/create" element={<CreateShipment />} />
-            <Route path="/shipments/list" element={<ShipmentList />} />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute isLoading={loading} isAuthenticated={!!profile}>
-                  <Dashboard profile={profile} />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/upgrade-plans"
-              element={<UpgradePlans onSelectPlan={(plan) => console.log(plan)} />}
-            />
-          </Routes>
-        </main>
-        <Footer />
-      </div>
+      <ErrorBoundary>
+        <div className="flex flex-col min-h-screen">
+          <Navbar logout={logout} user={user} />
+          <main className="flex-grow">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route
+                path="/shipments/create"
+                element={
+                  <ProtectedRoute
+                    isLoading={isLoading}
+                    isAuthenticated={isAuthenticated}
+                    allowedRoles={["customer", "agent"]}
+                  >
+                    <CreateShipment />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/shipments/list"
+                element={
+                  <ProtectedRoute
+                    isLoading={isLoading}
+                    isAuthenticated={isAuthenticated}
+                    allowedRoles={["customer", "agent"]}
+                  >
+                    <ShipmentList />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute
+                    isLoading={isLoading}
+                    isAuthenticated={isAuthenticated}
+                    allowedRoles={["customer", "agent", "admin"]}
+                  >
+                    <Dashboard profile={user} logout={logout} />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/upgrade-plans"
+                element={
+                  <ProtectedRoute
+                    isLoading={isLoading}
+                    isAuthenticated={isAuthenticated}
+                    allowedRoles={["customer"]}
+                  >
+                    <UpgradePlans />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/payment"
+                element={
+                  <ProtectedRoute
+                    isLoading={isLoading}
+                    isAuthenticated={isAuthenticated}
+                    allowedRoles={["customer"]}
+                  >
+                    <Payment />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/unauthorized"
+                element={<div className="text-center mt-10">Unauthorized Access</div>}
+              />
+            </Routes>
+          </main>
+          <Footer />
+          <ToastContainer position="top-right" autoClose={3000} /> 
+        </div>
+      </ErrorBoundary>
     </BrowserRouter>
   );
 }
