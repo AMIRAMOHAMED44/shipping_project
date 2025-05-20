@@ -1,7 +1,7 @@
 import React from "react";
 import CompanyIntro from "./CompanyIntro";
 import Features from "./Features";
-import Plans from "./Plans";
+import Plans from "../customer-dashboard/Plans";
 import Reviews from "./Reviews";
 import Contact from "./Contact";
 

@@ -78,26 +78,16 @@ CORS_ALLOW_METHODS = [
     'DELETE',
     'OPTIONS'
 ]
-CORS_ALLOW_CREDENTIALS = True
+
 CORS_ALLOW_HEADERS = [
-    'accept',
-    'accept-encoding',
-    'authorization',
-    'content-type',
-    'dnt',
-    'origin',
-    'user-agent',
-    'x-csrftoken',
-    'x-requested-with',
+    'Content-Type',
+    'Authorization',
 ]
 
 # REST Framework Settings
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10
-    
-}
-REST_FRAMEWORK = {
+    'PAGE_SIZE': 10,
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
@@ -136,7 +126,7 @@ DATABASES = {
         'USER':'postgres',
         'PASSWORD':'555',
         'HOST':'localhost',
-        'PORT':5432
+        'PORT':5434
 
     }
 }
@@ -182,12 +172,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
-}
 
 AUTH_USER_MODEL = 'users.CustomUser'
 

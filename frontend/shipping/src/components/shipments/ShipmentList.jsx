@@ -10,7 +10,12 @@ export default function ShipmentList() {
   useEffect(() => {
     const fetchShipments = async () => {
       try {
-        const res = await axios.get('http://localhost:8000/api/shipments/');
+        const access = localStorage.getItem('access');
+        const res = await axios.get('http://localhost:8000/api/shipments/', {
+          headers: {
+            Authorization: `Bearer ${access}`
+          }
+        });
         let shipmentsData = res.data;
         if (!Array.isArray(shipmentsData)) {
           if (shipmentsData.results) {
@@ -34,7 +39,12 @@ export default function ShipmentList() {
 
   const cancelShipment = async (id) => {
     try {
-      await axios.delete(`http://localhost:8000/api/shipments/${id}/`);
+      const access = localStorage.getItem('access');
+      await axios.delete(`http://localhost:8000/api/shipments/${id}/`, {
+        headers: {
+          Authorization: `Bearer ${access}`
+        }
+      });
       setShipments(shipments.filter(shipment => shipment.id !== id));
     } catch (err) {
       console.error('Error cancelling shipment:', err);
@@ -42,9 +52,12 @@ export default function ShipmentList() {
     }
   };
 
-  if (isLoading) return <div className="text-center py-10 text-teal-600">Loading shipments...</div>;
-  if (error) return <div className="text-center text-red-600">Error: {error}</div>;
-  if (shipments.length === 0) return <div className="text-center text-gray-500">No shipments found</div>;
+  if (isLoading)
+    return <div className="text-center py-10 text-teal-600">Loading shipments...</div>;
+  if (error)
+    return <div className="text-center text-red-600">Error: {error}</div>;
+  if (shipments.length === 0)
+    return <div className="text-center text-gray-500">No shipments found</div>;
 
   return (
     <div
@@ -81,7 +94,9 @@ export default function ShipmentList() {
               <p><strong className="text-teal-700">From:</strong> {shipment.origin}</p>
               <p><strong className="text-teal-700">To:</strong> {shipment.destination}</p>
               <p><strong>Weight:</strong> {shipment.weight} kg</p>
-              <p><strong>Cost:</strong> <span className="text-amber-600 font-medium">${shipment.cost}</span></p>
+              <p>
+                <strong>Cost:</strong> <span className="text-amber-600 font-medium">${shipment.cost}</span>
+              </p>
               <p><strong>Est. Delivery:</strong> {new Date(shipment.estimated_delivery).toLocaleDateString()}</p>
             </div>
             {shipment.status === 'PENDING' && (

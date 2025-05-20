@@ -3,7 +3,7 @@ import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 import Footer from "./components/Footer/Footer";
 import Navbar from "./components/Header/Header";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useEffect, useState } from "react";
 import CreateShipment from "./components/shipments/CreateShipment";
 import ShipmentList from "./components/shipments/ShipmentList";
@@ -65,7 +65,7 @@ function App() {
   };
 
   return (
-    <BrowserRouter>
+    <Router>
       <div className="flex flex-col min-h-screen">
         <Navbar />
         <main className="flex-grow">
@@ -76,8 +76,16 @@ function App() {
               element={<Login onLogin={handleLoginSuccess} />}
             />
             <Route path="/register" element={<Register />} />
-            <Route path="/shipments/create" element={<CreateShipment />} />
-            <Route path="/shipments/list" element={<ShipmentList />} />
+            <Route path="/shipments/create" element={
+              <ProtectedRoute>
+                <CreateShipment />
+              </ProtectedRoute>
+            } />
+            <Route path="/shipments/list" element={
+              <ProtectedRoute>
+                <ShipmentList />
+              </ProtectedRoute>
+            } />
             <Route
               path="/dashboard"
               element={
@@ -94,7 +102,7 @@ function App() {
         </main>
         <Footer />
       </div>
-    </BrowserRouter>
+    </Router>
   );
 }
 

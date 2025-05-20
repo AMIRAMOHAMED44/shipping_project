@@ -1,10 +1,11 @@
 from rest_framework import viewsets, status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 from .models import Shipment, City
 from .serializers import ShipmentSerializer, CitySerializer
 from .utils import EGYPTIAN_CITIES
-from rest_framework.exceptions import ValidationError
 
 class CityViewSet(viewsets.ModelViewSet):
     queryset = City.objects.all()
@@ -19,8 +20,21 @@ class CityViewSet(viewsets.ModelViewSet):
         return queryset
 
 class ShipmentViewSet(viewsets.ModelViewSet):
-    queryset = Shipment.objects.all().order_by('-created_at')
     serializer_class = ShipmentSerializer
+    permission_classes = [IsAuthenticated]  # فقط المستخدمين المسجلين
+
+    def get_queryset(self):
+        # إرجاع الشحنات التي أنشأها المستخدم الحالي فقط
+        return Shipment.objects.filter(user=self.request.user).order_by('-created_at')
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        # نفترض أن للمستخدم حقل current_plan مع weight_limit
+        plan = getattr(user, 'current_plan', None)
+        shipment_weight = serializer.validated_data.get('weight')
+        if plan and shipment_weight > plan.weight_limit:
+            raise ValidationError(f"Shipment weight exceeds your plan limit of {plan.weight_limit} kg")
+        serializer.save(user=user)
 
     def validate_city(self, city_name):
         if city_name not in EGYPTIAN_CITIES:
