@@ -1,12 +1,34 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom"; // ← الإضافة الجديدة
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
+import { useDispatch } from 'react-redux';
+import { login } from '../../redux/authSlice';
 export default function Login() {
+  const dispatch = useDispatch(); 
+  const getuserdata = async () => {
+    const accessToken = localStorage.getItem("access");
+    if (!accessToken) {
+      console.error("No access token found.");
+      return;
+    }
+    try {
+      const res = await axios.get("http://localhost:8000/api/account/account", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      console.log("User Data:", res.data);
+      dispatch(login(res.data)); // Dispatching the user data to Redux store
+      // setUserData(res.data); // Uncomment if you want to store user data in local state
+    } catch (err) {
+      console.error("Error fetching user data:", err.response?.data || err.message);
+    }
+  };
+  
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate(); // ← الإضافة الجديدة
-
+  const navigate = useNavigate(); 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -21,7 +43,8 @@ export default function Login() {
         localStorage.setItem("access", access);
         localStorage.setItem("refresh", refresh);
         // alert("Login successful");
-
+        console.log("Login successful");
+        await getuserdata(); // Fetch user data after successful login
         navigate("/dashboard"); 
       } else {
         alert("Login failed: Tokens missing");
@@ -30,7 +53,9 @@ export default function Login() {
       console.error(err.response?.data || err.message);
       alert("Login failed");
     }
+
   };
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 to-white flex items-center justify-center px-4 sm:px-6 md:px-8 py-10">

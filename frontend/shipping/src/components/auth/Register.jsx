@@ -1,5 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
+
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -9,7 +11,7 @@ export default function Register() {
     role: "customer",
     document: null,
   });
-
+  const navigate = useNavigate();
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     setFormData((prev) => ({
@@ -30,7 +32,8 @@ export default function Register() {
 
     try {
       await axios.post("http://localhost:8000/api/users/register/", data);
-      alert("Registered successfully!");
+      
+      navigate("/login"); 
     } catch (err) {
       console.error(err.response?.data || err.message);
       alert("Registration failed.");
@@ -126,9 +129,9 @@ export default function Register() {
 
         <p className="text-center text-sm sm:text-base text-gray-500 mt-5">
           Already have an account?{" "}
-          <a href="#" className="text-teal-600 hover:underline">
-            Login here
-          </a>
+          <Link to="/login" className="text-teal-600 hover:underline">
+            Login
+          </Link> 
         </p>
       </form>
     </div>

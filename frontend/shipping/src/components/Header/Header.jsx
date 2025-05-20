@@ -1,12 +1,17 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { logout as logoutAction } from "../../redux/authSlice"; // غيّر المسار حسب مكان ملف الـ slice
 
 export default function Header() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  // const { isLoggedIn } = useSelector((state) => state.auth);
+  const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
 
   const toggleDropdown = () => setDropdownOpen((prev) => !prev);
   const toggleMobileMenu = () => setMobileMenuOpen((prev) => !prev);
@@ -22,15 +27,10 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  useEffect(() => {
-    const token = localStorage.getItem("access");
-    setIsLoggedIn(!!token);
-  }, []);
-25
   const handleLogout = () => {
     localStorage.removeItem("access");
     localStorage.removeItem("refresh");
-    setIsLoggedIn(false);
+    dispatch(logoutAction()); // لو عندك logout action في الـ Redux
     navigate("/login");
   };
 
@@ -53,18 +53,19 @@ export default function Header() {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex space-x-6 text-lg font-semibold items-center">
+          {isLoggedIn && (
+            <Link
+              to="/dashboard"
+              className="hover:underline hover:text-yellow-400 transition"
+            >
+              Dashboard
+            </Link>
+          )}
+
           <div className="relative" ref={dropdownRef}>
-            {isLoggedIn && (
-              <Link
-                to="/dashboard"
-                className="hover:underline hover:text-yellow-400 transition-colors duration-300"
-              >
-                Dashboard
-              </Link>
-            )}
             <button
               onClick={toggleDropdown}
-              className="hover:underline hover:text-yellow-400 transition-colors duration-300"
+              className="hover:underline hover:text-yellow-400 transition"
             >
               Shipments
             </button>
@@ -96,13 +97,13 @@ export default function Header() {
             <>
               <Link
                 to="/login"
-                className="hover:underline hover:text-yellow-400 transition-colors duration-300"
+                className="hover:underline hover:text-yellow-400 transition"
               >
                 Login
               </Link>
               <Link
                 to="/register"
-                className="hover:underline hover:text-yellow-400 transition-colors duration-300"
+                className="hover:underline hover:text-yellow-400 transition"
               >
                 Register
               </Link>
@@ -110,7 +111,7 @@ export default function Header() {
           ) : (
             <button
               onClick={handleLogout}
-              className="hover:underline hover:text-yellow-400 transition-colors duration-300"
+              className="hover:underline hover:text-yellow-400 transition"
             >
               Logout
             </button>
@@ -121,15 +122,16 @@ export default function Header() {
       {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden px-4 pb-4 space-y-3 text-lg font-semibold bg-teal-500">
+          {isLoggedIn && (
+            <Link
+              to="/dashboard"
+              className="block hover:text-yellow-300 transition"
+            >
+              Dashboard
+            </Link>
+          )}
+
           <details className="block">
-            {isLoggedIn && (
-              <Link
-                to="/dashboard"
-                className="block hover:text-yellow-300 transition"
-              >
-                Dashboard
-              </Link>
-            )}
             <summary className="cursor-pointer hover:text-yellow-300 transition">
               Shipments
             </summary>
