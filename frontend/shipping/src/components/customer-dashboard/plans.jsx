@@ -1,8 +1,11 @@
 import React from 'react';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { useSelector } from 'react-redux';
+import axiosInstance from '../../api/axiosInstance';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-const plans = [
+const PLANS = [
   {
     id: 'regular',
     name: 'Regular',
@@ -40,118 +43,114 @@ const plans = [
 ];
 
 const UpgradePlans = () => {
-  const user = useSelector((state) => state.auth.user);
-  console.log(user);
+  const { user } = useSelector((state) => state.auth);
+  const currentPlanId = user?.current_plan?.name?.toLowerCase();
+
   const handleUpgrade = async (planId) => {
-    const token = localStorage.getItem("access");
     try {
-      const response = await fetch("http://localhost:8000/api/account/upgrade/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ plan_id: planId }),
+      const response = await axiosInstance.post("/api/account/upgrade/", {
+        plan_id: planId
       });
 
-      if (response.ok) {
-        alert("Plan upgraded successfully!");
-        window.location.href = "/dashboard";
+      if (response.status === 200) {
+        toast.success("Plan upgraded successfully!");
+        window.location.reload(); // لإعادة تحميل بيانات المستخدم
       } else {
-        alert("Upgrade failed.");
+        toast.error("Upgrade failed. Please try again.");
       }
     } catch (error) {
-      alert("Something went wrong.");
+      console.error("Upgrade error:", error);
+      toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
 
   return (
-    <PayPalScriptProvider options={{ "client-id": "AeR1Lb5gdCtQfg_6YW3fzK57h4xK-aOlLLaVK4AYScutG3zZ82xkMw0ZC06HHezF-WaSdEYl454IPhBg" }}>
-      <div style={{ maxWidth: 1200, margin: 'auto', padding: '40px 20px', fontFamily: 'sans-serif' }}>
-        <h1 style={{ textAlign: 'center', color: '#009689', marginBottom: 40, fontSize: 30, fontWeight: 'bold' }}>
+    <PayPalScriptProvider 
+      options={{ 
+        "client-id": "AeR1Lb5gdCtQfg_6YW3fzK57h4xK-aOlLLaVK4AYScutG3zZ82xkMw0ZC06HHezF-WaSdEYl454IPhBg",
+        "currency": "USD"
+      }}
+    >
+      <div className="max-w-6xl mx-auto px-4 py-10">
+        <h1 className="text-center text-3xl font-bold text-teal-600 mb-10">
           Upgrade Your Shipping Plan
         </h1>
-        <div style={{ display: 'flex', gap: 30, justifyContent: 'center', flexWrap: 'wrap' }}>
-          {plans.map((plan) => {
-            const currentPlanName = user?.user?.current_plan?.name?.toLowerCase();
-            const isCurrent = currentPlanName === plan.id.toLowerCase();
-            console.log(isCurrent);
-            console.log(plan.id.toLowerCase());
-            console.log(user?.current_plan?.name?.toLowerCase());
-            console.log(currentPlanName);
-            console.log(user?.current_plan?.name);
-
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {PLANS.map((plan) => {
+            const isCurrentPlan = currentPlanId === plan.id;
+            
             return (
               <div
                 key={plan.id}
-                style={{
-                  border: isCurrent ? '2px solid #009689' : '1px solid #ccc',
-                  borderRadius: 12,
-                  padding: 30,
-                  width: 350,
-                  backgroundColor: isCurrent ? '#e0f7f5' : '#fff',
-                  boxShadow: '0 4px 10px rgba(0,0,0,0.08)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  height: 520,
-                }}
+                className={`rounded-xl p-6 shadow-lg flex flex-col h-full 
+                  ${isCurrentPlan 
+                    ? 'border-2 border-teal-500 bg-teal-50' 
+                    : 'border border-gray-200 bg-white'}`}
               >
-                <div>
-                  <h3 style={{ color: '#009689', fontSize: 24, marginBottom: 10 }}>{plan.name}</h3>
-                  <p style={{ fontSize: 18, fontWeight: 'bold' }}>${plan.price}</p>
-                  <ul style={{ paddingLeft: 20, marginBottom: 20 }}>
+                <div className="flex-grow">
+                  <h3 className="text-xl font-bold text-teal-600 mb-2">{plan.name}</h3>
+                  <p className="text-2xl font-bold mb-4">
+                    {plan.price > 0 ? `$${plan.price}` : 'Free'}
+                  </p>
+                  
+                  <ul className="space-y-2 mb-6">
                     {plan.features.map((feature, i) => (
-                      <li key={i} style={{ marginBottom: 8 }}>{feature}</li>
+                      <li key={i} className="flex items-start">
+                        <svg className="w-5 h-5 text-teal-500 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        {feature}
+                      </li>
                     ))}
                   </ul>
                 </div>
-                <div style={{ marginTop: 'auto' }}>
-                  {isCurrent ? (
+
+                <div className="mt-auto">
+                  {isCurrentPlan ? (
                     <button
-                      style={{
-                        padding: '10px 20px',
-                        backgroundColor: '#ccc',
-                        border: 'none',
-                        borderRadius: 6,
-                        color: '#333',
-                        cursor: 'not-allowed',
-                        width: '100%',
-                      }}
+                      className="w-full py-2 px-4 bg-gray-300 text-gray-700 rounded-lg cursor-not-allowed"
                       disabled
                     >
                       Current Plan
                     </button>
                   ) : plan.price === 0 ? (
                     <button
-                      style={{
-                        padding: '10px 20px',
-                        backgroundColor: '#009689',
-                        border: 'none',
-                        borderRadius: 6,
-                        color: '#fff',
-                        cursor: 'pointer',
-                        width: '100%',
-                      }}
+                      className="w-full py-2 px-4 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
                       onClick={() => handleUpgrade(plan.id)}
                     >
                       Choose Free Plan
                     </button>
                   ) : (
                     <PayPalButtons
-                      style={{ layout: "vertical", label: "pay", color: "blue" }}
+                      style={{ 
+                        layout: "vertical",
+                        color: "blue",
+                        shape: "rect",
+                        label: "subscribe"
+                      }}
                       createOrder={(data, actions) => {
                         return actions.order.create({
                           purchase_units: [{
                             amount: {
                               value: plan.price.toString(),
+                              currency_code: "USD"
                             },
                           }],
                         });
                       }}
                       onApprove={async (data, actions) => {
-                        await actions.order.capture();
-                        await handleUpgrade(plan.id);
+                        try {
+                          await actions.order.capture();
+                          await handleUpgrade(plan.id);
+                        } catch (err) {
+                          toast.error("Payment processing failed");
+                          console.error("PayPal error:", err);
+                        }
+                      }}
+                      onError={(err) => {
+                        toast.error("Payment failed. Please try again.");
+                        console.error("PayPal error:", err);
                       }}
                     />
                   )}
