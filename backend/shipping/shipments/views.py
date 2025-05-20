@@ -49,3 +49,39 @@ class ShipmentViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def cities_list(self, request):
         return Response(EGYPTIAN_CITIES)
+    
+    @action(detail=False, methods=['get'], url_path='available-shipments')
+    def available_shipments(self, request):
+        city = request.query_params.get('city', None)
+        shipments = Shipment.objects.filter(status='PENDING')
+
+        if city:
+            shipments = shipments.filter(destination__iexact=city)
+
+        serializer = self.get_serializer(shipments, many=True)
+        return Response(serializer.data)
+    
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from agents.models import Agent
+from .models import Shipment
+from .serializers import ShipmentSerializer
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def agent_available_shipments(request):
+    try:
+        agent = Agent.objects.get(user=request.user)
+    except Agent.DoesNotExist:
+        return Response({"detail": "Agent not found."}, status=404)
+
+    shipments = Shipment.objects.filter(
+        status='PENDING',
+        origin__iexact=agent.city
+    )
+    serializer = ShipmentSerializer(shipments, many=True)
+    return Response(serializer.data)
+
+

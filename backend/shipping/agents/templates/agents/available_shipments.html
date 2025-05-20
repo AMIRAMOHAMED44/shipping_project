@@ -1,0 +1,21 @@
+<h2>الشحنات المتاحة في مدينتك</h2>
+
+{% if shipments %}
+  <ul style="list-style: none; padding: 0;">
+    {% for shipment in shipments %}
+      <li style="margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 10px;">
+        <strong>رقم التتبع:</strong> {{ shipment.tracking_id }}<br>
+        <strong>من:</strong> {{ shipment.origin }} → <strong>إلى:</strong> {{ shipment.destination }}<br>
+        <strong>الوزن:</strong> {{ shipment.weight }} كجم<br>
+        <strong>التسليم المتوقع:</strong> {{ shipment.estimated_delivery }}<br>
+
+        <form method="post" action="{% url 'claim-shipment' shipment.id %}" style="margin-top: 10px;">
+          {% csrf_token %}
+          <button type="submit">طلب استلام الشحنة</button>
+        </form>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>لا توجد شحنات متاحة في مدينتك حالياً.</p>
+{% endif %}

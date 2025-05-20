@@ -4,6 +4,8 @@ from .utils import generate_tracking_id, calculate_distance, calculate_cost, cal
 from datetime import timedelta
 from django.utils import timezone
 
+from agents.models import Agent 
+
 
 class City(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -39,6 +41,7 @@ class Shipment(models.Model):
     estimated_delivery = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    assigned_agent = models.ForeignKey(Agent, null=True, blank=True, on_delete=models.SET_NULL, related_name='shipments')
 
     def save(self, *args, **kwargs):
         if not self.tracking_id:

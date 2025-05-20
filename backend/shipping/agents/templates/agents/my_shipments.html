@@ -1,0 +1,26 @@
+<h2>شحناتي الحالية</h2>
+
+{% if error %}
+  <p style="color: red;">{{ error }}</p>
+{% elif shipments %}
+  <ul style="list-style: none; padding: 0;">
+    {% for shipment in shipments %}
+      <li style="margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 10px;">
+        <strong>رقم التتبع:</strong> {{ shipment.tracking_id }}<br>
+        <strong>من:</strong> {{ shipment.origin }} → <strong>إلى:</strong> {{ shipment.destination }}<br>
+        <strong>الحالة:</strong> {{ shipment.get_status_display }}<br>
+        <strong>الوزن:</strong> {{ shipment.weight }} كجم<br>
+        <strong>التسليم المتوقع:</strong> {{ shipment.estimated_delivery }}<br>
+
+        {% if shipment.status == "IN_TRANSIT" %}
+          <form method="post" action="{% url 'confirm-delivery' shipment.id %}" style="margin-top: 10px;">
+            {% csrf_token %}
+            <button type="submit">تم التسليم</button>
+          </form>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>ليس لديك شحنات حالياً.</p>
+{% endif %}

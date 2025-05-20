@@ -27,13 +27,8 @@ export default function AvailableShipments() {
     const fetchShipments = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get(
-          `http://127.0.0.1:8000/agents/available-shipments`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("access")}`,
-            },
-          }
+        const response = await api.get(
+          "/agents/available-shipments/"
         );
         setAvailableShipments(response.data);
         setIsLoading(false);
