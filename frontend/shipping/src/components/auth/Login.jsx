@@ -1,34 +1,37 @@
 import { useState } from "react";
 import axios from "axios";
+import { useAuth } from "../../context/AuthContext";
 
 export default function Login({ onLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { login } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    try {
-      const res = await axios.post("http://localhost:8000/api/users/login/", {
-        email,
-        password,
-      });
+    // try {
+    //   const res = await axios.post("http://localhost:8000/api/users/login/", {
+    //     email,
+    //     password,
+    //   });
 
-      const { access, refresh } = res.data;
+    //   const { access, refresh } = res.data;
 
-      if (access && refresh) {
-        localStorage.setItem("access", access);
-        localStorage.setItem("refresh", refresh);
-        console.log("Access Token:", access);
-        console.log("Refresh Token:", refresh);
-        alert("Login successful");
-        onLogin?.(); // Optional callback
-      } else {
-        alert("Login failed: Tokens missing");
-      }
-    } catch (err) {
-      console.error(err.response?.data || err.message);
-      alert("Login failed");
-    }
+    //   if (access && refresh) {
+    //     localStorage.setItem("access", access);
+    //     localStorage.setItem("refresh", refresh);
+    //     console.log("Access Token:", access);
+    //     console.log("Refresh Token:", refresh);
+    //     alert("Login successful");
+    //     onLogin?.(); // Optional callback
+    //   } else {
+    //     alert("Login failed: Tokens missing");
+    //   }
+    // } catch (err) {
+    //   console.error(err.response?.data || err.message);
+    //   alert("Login failed");
+    // }
+    login(email, password);
   };
 
   return (
