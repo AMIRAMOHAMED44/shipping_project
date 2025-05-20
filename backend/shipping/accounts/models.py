@@ -1,7 +1,8 @@
-
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
+from datetime import timedelta
 
 class Plan(models.Model):
     PLAN_CHOICES = [
@@ -25,3 +26,15 @@ class CustomerProfile(models.Model):
 
     def __str__(self):
         return self.user.username
+    
+    def is_plan_expired(self):
+        
+        if not self.plan_expiry:
+            return True
+        return self.plan_expiry < timezone.now().date()
+    
+    def set_plan(self, plan, days=30):
+        
+        self.current_plan = plan
+        self.plan_expiry = timezone.now().date() + timedelta(days=days)
+        self.save()

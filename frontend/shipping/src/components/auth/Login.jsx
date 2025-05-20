@@ -1,62 +1,75 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { useDispatch } from 'react-redux';
 import { login } from '../../redux/authSlice';
-export default function Login() {
-  const dispatch = useDispatch(); 
-  const getuserdata = async () => {
-    const accessToken = localStorage.getItem("access");
-    if (!accessToken) {
-      console.error("No access token found.");
-      return;
-    }
-    try {
-      const res = await axios.get("http://localhost:8000/api/account/account", {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      console.log("User Data:", res.data);
-      dispatch(login(res.data)); // Dispatching the user data to Redux store
-      // setUserData(res.data); // Uncomment if you want to store user data in local state
-    } catch (err) {
-      console.error("Error fetching user data:", err.response?.data || err.message);
-    }
-  };
-  
+import axiosInstance from '../../api/axiosInstance';
 
+// دالة التحقق من صلاحية التوكن
+const isTokenValid = (token) => {
+  if (!token) return false;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.exp * 1000 > Date.now();
+  } catch {
+    return false;
+  }
+};
+
+export default function Login() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate(); 
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
+
     try {
-      const res = await axios.post("http://localhost:8000/api/users/login/", {
-        email,
-        password,
-      });
-
-      const { access, refresh } = res.data;
-
-      if (access && refresh) {
-        localStorage.setItem("access", access);
-        localStorage.setItem("refresh", refresh);
-        // alert("Login successful");
-        console.log("Login successful");
-        await getuserdata(); // Fetch user data after successful login
-        navigate("/dashboard"); 
-      } else {
-        alert("Login failed: Tokens missing");
+      // 1. تسجيل الدخول
+      const res = await axiosInstance.post("/api/users/login/", { email, password });
+      
+      if (!res.data.access || !res.data.refresh) {
+        throw new Error("Tokens missing in response");
       }
+
+      // 2. تخزين التوكنز
+      localStorage.setItem("access", res.data.access);
+      localStorage.setItem("refresh", res.data.refresh);
+
+      // 3. جلب بيانات المستخدم
+      const userRes = await axiosInstance.get("/api/account/account/");
+      dispatch(login(userRes.data));
+
+      // 4. التوجيه للداشبورد
+      navigate("/dashboard");
     } catch (err) {
-      console.error(err.response?.data || err.message);
-      alert("Login failed");
+      console.error("Login error:", err);
+      
+      let errorMessage = "Login failed";
+      if (err.response) {
+        if (err.response.status === 401) {
+          errorMessage = "Invalid email or password";
+        } else if (err.response.status === 400) {
+          errorMessage = "Please check your email and password format";
+        }
+      } else if (err.message.includes("Network Error")) {
+        errorMessage = "Network error, check your connection";
+      }
+      
+      setError(errorMessage);
+      
+      // تنظيف التوكنز في حالة الخطأ
+      localStorage.removeItem("access");
+      localStorage.removeItem("refresh");
+    } finally {
+      setLoading(false);
     }
-
   };
-  
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 to-white flex items-center justify-center px-4 sm:px-6 md:px-8 py-10">
       <form
@@ -66,6 +79,12 @@ export default function Login() {
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-teal-700 mb-6 sm:mb-8">
           🚪 Login
         </h2>
+
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">
+            {error}
+          </div>
+        )}
 
         <div className="mb-5">
           <label className="block text-teal-800 font-semibold mb-1 text-base sm:text-lg">
@@ -97,9 +116,20 @@ export default function Login() {
 
         <button
           type="submit"
-          className="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 sm:py-4 text-base sm:text-lg rounded-lg transition duration-300 shadow-md hover:shadow-lg"
+          disabled={loading}
+          className={`w-full ${loading ? 'bg-teal-400' : 'bg-teal-600 hover:bg-teal-700'} text-white font-semibold py-3 sm:py-4 text-base sm:text-lg rounded-lg transition duration-300 shadow-md hover:shadow-lg flex justify-center items-center`}
         >
-          Log In
+          {loading ? (
+            <>
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Processing...
+            </>
+          ) : (
+            "Log In"
+          )}
         </button>
 
         <p className="text-center text-sm sm:text-base text-gray-500 mt-5">
