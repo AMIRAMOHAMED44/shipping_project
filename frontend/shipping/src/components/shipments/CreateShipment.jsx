@@ -4,7 +4,17 @@ import { useNavigate } from 'react-router-dom';
 import bgImage from '../../assets/17.jpg';
 
 export default function CreateShipment() {
-  const navigate = useNavigate();
+  const navigate = useNavigate()  
+  // هذه المتغيرات تمثل حدود الوزن الثابتة لكل خطة
+  const planLimits = {
+    Regular: 5,
+    Premium: 20,
+    Business: 50,
+  };
+
+  // عيّن هنا الخطة الحالية للمستخدم (يمكن تعديلها أو جلبها لاحقًا من جهة العميل)
+  const currentPlan = "Regular"; // عدل هنا إلى "Premium" أو "Business" حسب الخطة
+
   const [formData, setFormData] = useState({
     origin: '',
     destination: '',
@@ -25,7 +35,11 @@ export default function CreateShipment() {
         const response = await axios.get('http://localhost:8000/api/cities/', {
           headers: access ? { Authorization: `Bearer ${access}` } : {}
         });
-        setCities(Array.isArray(response.data) ? response.data : response.data.results || []);
+        setCities(
+          Array.isArray(response.data)
+            ? response.data
+            : response.data.results || []
+        );
       } catch (err) {
         console.error('Error fetching cities:', err);
         setCities([]);
@@ -50,13 +64,21 @@ export default function CreateShipment() {
       if (!formData.origin || !formData.destination) {
         throw new Error('Please select both origin and destination');
       }
-      if (isNaN(formData.weight) || parseFloat(formData.weight) <= 0) {
+      const weightVal = parseFloat(formData.weight);
+      if (isNaN(weightVal) || weightVal <= 0) {
         throw new Error('Weight must be a positive number');
       }
+      
+      // التحقق من الحد الأقصى للوزن حسب نوع الخطة الثابت
+      const allowedWeight = planLimits[currentPlan];
+      if (weightVal > allowedWeight) {
+        throw new Error(`Weight exceeds your plan limit of ${allowedWeight} kg for ${currentPlan} plan`);
+      }
+
       const payload = {
         origin: formData.origin,
         destination: formData.destination,
-        weight: parseFloat(formData.weight),
+        weight: weightVal,
         description: formData.description
       };
 
@@ -178,7 +200,9 @@ export default function CreateShipment() {
             <ul className="space-y-1 text-gray-800">
               <li><strong>Tracking ID:</strong> {createdShipment.tracking_id}</li>
               <li><strong>Estimated Cost:</strong> EGP {createdShipment.cost?.toFixed(2)}</li>
-              <li><strong>Estimated Delivery:</strong> {new Date(createdShipment.estimated_delivery).toLocaleDateString()}</li>
+              <li>
+                <strong>Estimated Delivery:</strong> {new Date(createdShipment.estimated_delivery).toLocaleDateString()}
+              </li>
               {createdShipment.description && (
                 <li><strong>Description:</strong> {createdShipment.description}</li>
               )}
