@@ -36,7 +36,6 @@ export default function Contact() {
   return (
     <section className="bg-white py-20 px-6">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-        {/* Left Side - Image */}
         <div>
           <img
             src="src/assets/10.jpg"
@@ -44,13 +43,10 @@ export default function Contact() {
             className="w-full h-auto object-cover rounded-xl"
           />
         </div>
-
-        {/* Right Side - Form */}
         <div className="w-full">
           <h2 className="text-3xl sm:text-4xl font-bold text-teal-700 mb-8 font-serif">
             Get in Touch
           </h2>
-
           {status && (
             <p
               className={`mb-6 text-lg font-medium ${
@@ -60,9 +56,7 @@ export default function Contact() {
               {status}
             </p>
           )}
-
           <form onSubmit={handleSubmit} className="space-y-6 shadow-md p-8 bg-white rounded-xl">
-
             <input
               id="name"
               name="name"
@@ -72,7 +66,6 @@ export default function Contact() {
               placeholder="Your Name"
               className="w-full bg-gray-50 text-gray-800 px-5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-teal-400 placeholder-gray-400 transition"
             />
-
             <input
               id="email"
               name="email"
@@ -83,7 +76,6 @@ export default function Contact() {
               placeholder="you@example.com"
               className="w-full bg-gray-50 text-gray-800 px-5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-teal-400 placeholder-gray-400 transition"
             />
-
             <textarea
               id="message"
               name="message"
@@ -94,7 +86,6 @@ export default function Contact() {
               placeholder="Write your message here..."
               className="w-full bg-gray-50 text-gray-800 px-5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-teal-400 placeholder-gray-400 transition resize-none"
             />
-
             <button
               type="submit"
               disabled={loading}

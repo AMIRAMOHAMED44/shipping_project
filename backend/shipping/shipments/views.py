@@ -49,3 +49,13 @@ class ShipmentViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def cities_list(self, request):
         return Response(EGYPTIAN_CITIES)
+
+    def destroy(self, request, *args, **kwargs):
+        shipment = self.get_object()
+        if shipment.status != 'PENDING':
+            return Response(
+                {"error": "Only PENDING shipments can be deleted."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        self.perform_destroy(shipment)
+        return Response({"status": "Shipment deleted successfully"}, status=status.HTTP_204_NO_CONTENT)

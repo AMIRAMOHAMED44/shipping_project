@@ -1,120 +1,124 @@
-/* src/components/auth/Login.jsx */
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
-import { useAuth } from "../../auth/authContext";
+import AuthContext from "../../context/AuthContext.jsx";
+import { toast } from "react-toastify";
 
 export default function Login() {
-  const [email, setEmail]       = useState("");
+  const { login, isLoading } = useContext(AuthContext);
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [sendingReset, setSending] = useState(false);
-  const { login }               = useAuth();
-  const navigate                = useNavigate();
+  const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
-  /* ---------- login ---------- */
+  const validateForm = () => {
+    const newErrors = {};
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email) {
+      newErrors.email = "Email is required";
+    } else if (!emailRegex.test(email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+    // Password validation
+    if (!password) {
+      newErrors.password = "Password is required";
+    } else if (password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters";
+    } else if (!/[A-Z]/.test(password)) {
+      newErrors.password = "Password must include at least one uppercase letter";
+    } else if (!/[a-z]/.test(password)) {
+      newErrors.password = "Password must include at least one lowercase letter";
+    } else if (!/[0-9]/.test(password)) {
+      newErrors.password = "Password must include at least one number";
+    } else if (!/[!@#$%^&*]/.test(password)) {
+      newErrors.password = "Password must include at least one special character";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
+    if (!validateForm()) return;
     try {
-      const { data } = await axios.post(
-        "http://localhost:8000/api/users/login/",
-        { email, password },
-        { withCredentials: false }          // explicit, so CORS pre-flight is simple
-      );
-
-      if (data.access && data.refresh) {
-        login(data.access);                 // update AuthContext
-        localStorage.setItem("refresh", data.refresh);
-
-        console.log("✔ logged-in, go → /dashboard");
-        navigate("/dashboard");
-      } else {
-        alert("Login failed: tokens missing");
-      }
+      await login(email, password);
+      toast.success("Login successful!");
+      navigate("/dashboard");
     } catch (err) {
-      console.error(err.response?.data || err.message);
-      alert("Login failed, please check your credentials.");
+      toast.error(err.response?.data?.detail || "Login failed. Please try again.");
     }
   };
 
-  /* ---------- forgot-password ---------- */
-  const handleForgot = async () => {
-    if (!email) return alert("Enter your e-mail first.");
-    try {
-      setSending(true);
-      await axios.post(
-        "http://localhost:8000/api/users/password-reset/",
-        { email },
-        { withCredentials: false }
-      );
-      alert("Password-reset link sent to your e-mail.");
-    } catch (err) {
-      console.error(err.response?.data || err.message);
-      alert("Couldn’t send reset e-mail.");
-    } finally {
-      setSending(false);
-    }
-  };
-
-  /* ---------- UI ---------- */
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-white flex items-center justify-center p-6">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-white flex items-center justify-center px-4 sm:px-6 md:px-8 py-10">
       <form
         onSubmit={handleLogin}
-        className="w-full max-w-xl bg-white shadow-2xl rounded-2xl p-8 border border-teal-100"
+        className="w-full max-w-full sm:max-w-lg md:max-w-xl bg-white shadow-2xl rounded-2xl p-6 sm:p-10 md:p-12 border border-teal-100 animate-fade-in"
       >
-        <h2 className="text-4xl font-bold text-center text-teal-700 mb-8">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-teal-700 mb-6 sm:mb-8">
           🚪 Login
         </h2>
-
-        {/* email */}
         <div className="mb-5">
-          <label className="block text-teal-800 font-semibold mb-1">
+          <label className="block text-teal-800 font-semibold mb-1 text-base sm:text-lg">
             Email
           </label>
           <input
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            type="email"
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setErrors((prev) => ({ ...prev, email: null }));
+            }}
             placeholder="you@example.com"
+            type="email"
             required
-            className="w-full px-4 py-2 rounded-lg border border-teal-300 focus:ring-2 focus:ring-teal-500"
+            className={`w-full px-4 py-2 sm:px-5 sm:py-3 rounded-lg border ${
+              errors.email ? "border-red-500" : "border-teal-300"
+            } focus:outline-none focus:ring-2 focus:ring-teal-500 text-base`}
           />
+          {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
         </div>
-
-        {/* password */}
-        <div className="mb-6">
-          <label className="block text-teal-800 font-semibold mb-1">
+        <div className="mb-6 relative">
+          <label className="block text-teal-800 font-semibold mb-1 text-base sm:text-lg">
             Password
           </label>
           <input
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            type="password"
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setErrors((prev) => ({ ...prev, password: null }));
+            }}
             placeholder="••••••••"
+            type={showPassword ? "text" : "password"}
             required
-            className="w-full px-4 py-2 rounded-lg border border-teal-300 focus:ring-2 focus:ring-teal-500"
+            className={`w-full px-4 py-2 sm:px-5 sm:py-3 rounded-lg border ${
+              errors.password ? "border-red-500" : "border-teal-300"
+            } focus:outline-none focus:ring-2 focus:ring-teal-500 text-base`}
           />
-        </div>
-
-        <button className="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 rounded-lg shadow-md">
-          Log In
-        </button>
-
-        {/* actions */}
-        <div className="flex justify-between items-center text-sm text-gray-500 mt-5">
           <button
             type="button"
-            onClick={handleForgot}
-            disabled={sendingReset}
-            className="text-teal-600 hover:underline disabled:opacity-50"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-9 text-teal-600 hover:text-teal-800"
           >
-            {sendingReset ? "Sending…" : "Forgot password?"}
+            {showPassword ? "Hide" : "Show"}
           </button>
-
-          <Link to="/register" className="text-teal-600 hover:underline">
-            Don’t have an account? Register
-          </Link>
+          {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
         </div>
+        <button
+          type="submit"
+          disabled={isLoading}
+          className={`w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 sm:py-4 text-base sm:text-lg rounded-lg transition duration-300 shadow-md hover:shadow-lg ${
+            isLoading ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+        >
+          {isLoading ? "Logging in..." : "Log In"}
+        </button>
+        <p className="text-center text-sm sm:text-base text-gray-500 mt-5">
+          Don’t have an account?{" "}
+          <Link to="/register" className="text-teal-600 hover:underline">
+            Register
+          </Link>
+        </p>
       </form>
     </div>
   );

@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useState, useEffect, useContext } from 'react';
+import { toast } from 'react-toastify';
+import AuthContext from '../../context/AuthContext.jsx';
 import bgImage from '../../assets/17.jpg';
 
 export default function CreateShipment() {
+  const { api } = useContext(AuthContext);
   const [formData, setFormData] = useState({
     origin: '',
     destination: '',
@@ -18,15 +20,18 @@ export default function CreateShipment() {
   useEffect(() => {
     const fetchCities = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/api/cities/');
+        const response = await api.get('/cities/');
+        console.log('Cities response:', response.data);
         setCities(Array.isArray(response.data) ? response.data : response.data.results || []);
       } catch (err) {
-        console.log('Error fetching cities:', err);
+        console.error('Error fetching cities:', err.response?.data || err.message);
+        setError('Failed to load cities. Please ensure you are logged in.');
+        toast.error('Failed to load cities.');
         setCities([]);
       }
     };
     fetchCities();
-  }, []);
+  }, [api]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -44,7 +49,6 @@ export default function CreateShipment() {
       if (!formData.origin || !formData.destination) {
         throw new Error('Please select both origin and destination');
       }
-
       if (isNaN(formData.weight) || parseFloat(formData.weight) <= 0) {
         throw new Error('Weight must be a positive number');
       }
@@ -56,14 +60,17 @@ export default function CreateShipment() {
         description: formData.description
       };
 
-      const res = await axios.post('http://localhost:8000/api/shipments/', payload);
-
+      const res = await api.post('/shipments/', payload);
+      console.log('Shipment created:', res.data);
       setSuccess(true);
       setCreatedShipment(res.data);
       setFormData({ origin: '', destination: '', weight: '', description: '' });
-
+      toast.success('Shipment created successfully!');
     } catch (err) {
-      setError(err.response?.data?.detail || err.response?.data?.message || err.message || 'Error creating shipment');
+      const errorMsg = err.response?.data?.error || err.response?.data?.detail || err.message || 'Error creating shipment';
+      console.error('Shipment creation error:', err.response?.data || err);
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setIsLoading(false);
     }
@@ -88,84 +95,92 @@ export default function CreateShipment() {
             ✅ Shipment created successfully!
           </div>
         )}
-      <form onSubmit={handleSubmit} className="space-y-5 text-lg">
-        <div>
-          <label className="block mb-1 font-medium text-gray-700">Origin City</label>
-          <select
-            name="origin"
-            value={formData.origin}
-            onChange={handleChange}
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500"
-            required
+
+        <form onSubmit={handleSubmit} className="space-y-5 text-lg">
+          <div>
+            <label className="block mb-1 font-medium text-gray-700">Origin City</label>
+            <select
+              name="origin"
+              value={formData.origin}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500"
+              required
+            >
+              <option value="">Select Origin</option>
+              {cities.length === 0 ? (
+                <option value="" disabled>No cities available</option>
+              ) : (
+                cities.map(city => (
+                  <option key={`origin-${city.id}`} value={city.name}>{city.name}</option>
+                ))
+              )}
+            </select>
+          </div>
+
+          <div>
+            <label className="block mb-1 font-medium text-gray-700">Destination City</label>
+            <select
+              name="destination"
+              value={formData.destination}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500"
+              required
+            >
+              <option value="">Select Destination</option>
+              {cities.length === 0 ? (
+                <option value="" disabled>No cities available</option>
+              ) : (
+                cities.map(city => (
+                  <option key={`dest-${city.id}`} value={city.name}>{city.name}</option>
+                ))
+              )}
+            </select>
+          </div>
+
+          <div>
+            <label className="block mb-1 font-medium text-gray-700">
+              Weight (kg) <span className="text-gray-500 text-base">(Min: 0.1kg)</span>
+            </label>
+            <input
+              type="number"
+              name="weight"
+              min="0.1"
+              step="0.1"
+              value={formData.weight}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500"
+              placeholder="e.g. 2.5"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block mb-1 font-medium text-gray-700">Description</label>
+            <textarea
+              name="description"
+              rows={3}
+              value={formData.description}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500"
+              placeholder="e.g. Books and clothes"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className={`w-full py-3 px-4 rounded-lg text-white font-semibold transition duration-300 ${
+              isLoading ? 'bg-teal-400 cursor-not-allowed' : 'bg-teal-600 hover:bg-teal-700'
+            }`}
           >
-            <option value="">Select Origin</option>
-            {cities.map(city => (
-              <option key={`origin-${city.id}`} value={city.name}>{city.name}</option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="block mb-1 font-medium text-gray-700">Destination City</label>
-          <select
-            name="destination"
-            value={formData.destination}
-            onChange={handleChange}
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500"
-            required
-          >
-            <option value="">Select Destination</option>
-            {cities.map(city => (
-              <option key={`dest-${city.id}`} value={city.name}>{city.name}</option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="block mb-1 font-medium text-gray-700">
-            Weight (kg) <span className="text-gray-500 text-base">(Min: 0.1kg)</span>
-          </label>
-          <input
-            type="number"
-            name="weight"
-            min="0.1"
-            step="0.1"
-            value={formData.weight}
-            onChange={handleChange}
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500"
-            placeholder="e.g. 2.5"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block mb-1 font-medium text-gray-700">Description</label>
-          <textarea
-            name="description"
-            rows={3}
-            value={formData.description}
-            onChange={handleChange}
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500"
-            placeholder="e.g. Books and clothes"
-          />
-        </div>
-
-        <button
-          type="submit"
-          disabled={isLoading}
-          className={`w-full py-3 px-4 rounded-lg text-white font-semibold transition duration-300 ${
-            isLoading ? 'bg-teal-400 cursor-not-allowed' : 'bg-teal-600 hover:bg-teal-700'
-          }`}
-        >
-          {isLoading ? 'Processing...' : 'Create Shipment'}
-        </button>
-      </form>
-
+            {isLoading ? 'Processing...' : 'Create Shipment'}
+          </button>
+        </form>
 
         {createdShipment && (
-          <div className="mt-6 p-5 bg-teal-50 border border-teal-200 rounded-xl text-sm sm:text-base">
+          <div className="mt-6 p-5 bg-teal-50 border border-teal-200 rounded-xl text-sm sm:text-base text-gray-800">
             <h3 className="text-lg font-semibold text-teal-800 mb-2">📄 Shipment Details</h3>
-            <ul className="space-y-1 text-gray-800">
+            <ul className="space-y-1">
               <li><strong>Tracking ID:</strong> {createdShipment.tracking_id}</li>
               <li><strong>Estimated Cost:</strong> EGP {createdShipment.cost?.toFixed(2)}</li>
               <li><strong>Estimated Delivery:</strong> {new Date(createdShipment.estimated_delivery).toLocaleDateString()}</li>

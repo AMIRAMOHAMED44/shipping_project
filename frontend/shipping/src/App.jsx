@@ -1,109 +1,102 @@
-import api from "./auth/api"; 
-
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./components/home/Home";
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 import Footer from "./components/Footer/Footer";
 import Navbar from "./components/Header/Header";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
 import CreateShipment from "./components/shipments/CreateShipment";
 import ShipmentList from "./components/shipments/ShipmentList";
 import UpgradePlans from "./components/customer-dashboard/plans";
 import Dashboard from "./components/customer-dashboard/dashboard";
-import axios from "axios";
-import AuthProvider from "./auth/authContext"; 
+import Payment from "./components/customer-dashboard/payment.jsx"; // Updated to Payment
+import ProtectedRoute from "./components/auth/ProtectedRoute";
+import { useContext } from "react";
+import AuthContext from "./context/AuthContext.jsx";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [view, setView] = useState("home");
-
-
-
-  useEffect(() => {
-    const fetchDashboard = async () => {
-      const token = localStorage.getItem("access");
-      if (!token) {
-        console.log("No access token found")
-        return
-      };
-
-      setLoading(true);
-      try {
-        const res = await api.get("/api/account/account/", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setProfile(res.data);
-        setView("dashboard");
-      } catch (err) {
-        console.error(
-          "Error fetching dashboard:",
-          err.response?.data || err.message
-        );
-        setProfile(null);
-        setView("login");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchDashboard();
-  }, []);
-
-  const handleLoginSuccess = () => {
-    fetchDashboard();
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("access");
-    setProfile(null);
-    setView("login");
-  };
+  const { user, isAuthenticated, isLoading, logout } = useContext(AuthContext);
 
   return (
-    <AuthProvider>
-
-      <BrowserRouter>
-        <div className="flex flex-col min-h-screen">
-          <Navbar />
-          <main className="flex-grow">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route
-                path="/login"
-                element={<Login onLogin={handleLoginSuccess} />}
-              />
-
-              <Route path="/register" element={<Register />} />
-              <Route path="/shipments/create" element={<CreateShipment />} />
-              <Route path="/shipments/list" element={<ShipmentList />} />
-              <Route
-                path="/dashboard"
+    <BrowserRouter>
+      <div className="flex flex-col min-h-screen">
+        <ToastContainer />
+        <Navbar logout={logout} user={user} />
+        <main className="flex-grow">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route
+              path="/shipments/create"
+              element={
+                <ProtectedRoute
+                  isLoading={isLoading}
+                  isAuthenticated={isAuthenticated}
+                  allowedRoles={["customer", "agent"]}
+                >
+                  <CreateShipment />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/shipments/list"
+              element={
+                <ProtectedRoute
+                  isLoading={isLoading}
+                  isAuthenticated={isAuthenticated}
+                  allowedRoles={["customer", "agent"]}
+                >
+                  <ShipmentList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute
+                  isLoading={isLoading}
+                  isAuthenticated={isAuthenticated}
+                  allowedRoles={["customer", "agent", "admin"]}
+                >
+                  <Dashboard profile={user} logout={logout} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+                path="/payment"
                 element={
-                  profile ? (
-                    <Dashboard profile={profile} />
-                  ) : (
-                    <Navigate to="/login" />
-                  )
+                  <ProtectedRoute
+                    isLoading={isLoading}
+                    isAuthenticated={isAuthenticated}
+                    allowedRoles={["customer"]}
+                  >
+                    <Payment />
+                  </ProtectedRoute>
                 }
               />
-              <Route
-                path="/upgrade-plans"
-                element={
-
+            <Route
+              path="/upgrade-plans"
+              element={
+                <ProtectedRoute
+                  isLoading={isLoading}
+                  isAuthenticated={isAuthenticated}
+                  allowedRoles={["customer"]}
+                >
                   <UpgradePlans onSelectPlan={(plan) => console.log(plan)} />
-
-                } />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
-      </BrowserRouter>
-    </AuthProvider>
-
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/unauthorized"
+              element={<div className="text-center mt-10">Unauthorized Access</div>}
+            />
+          </Routes>
+        </main>
+        <Footer />
+      </div>
+    </BrowserRouter>
   );
 }
 

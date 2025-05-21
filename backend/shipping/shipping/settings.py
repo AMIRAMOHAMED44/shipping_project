@@ -20,13 +20,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-l52u$&+%8y#&3w-+7a$i-p5*go2hz5da2-6afkiv)3la-)00p@'
+# SECRET_KEY = 'django-insecure-l52u$&+%8y#&3w-+7a$i-p5*go2hz5da2-6afkiv)3la-)00p@'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 # Application definition
 
@@ -39,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
+    'rest_framework_simplejwt',
     'adminpanel',
     'agents',
     'payments',
@@ -46,8 +46,7 @@ INSTALLED_APPS = [
     'shipments',
     'users',
     'home',
-    'rest_framework_simplejwt',
-    'accounts'
+    'accounts',
     
 
 
@@ -71,6 +70,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
     "http://localhost:5174",
     "http://127.0.0.1:5174",
+    "http://localhost:3000",
 ]
 
 CORS_ALLOW_METHODS = [
@@ -88,17 +88,14 @@ CORS_ALLOW_HEADERS = [
 
 # REST Framework Settings
 REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10
-    
-}
-REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10
 }
 
 ROOT_URLCONF = 'shipping.urls'
@@ -178,12 +175,20 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
-}
+
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
 
+from decouple import config
+SECRET_KEY = config('SECRET_KEY')
+
+
+from datetime import timedelta
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'AUTH_COOKIE_HTTP_ONLY': True,
+    'AUTH_COOKIE_SECURE': True,  # Set to True in production (HTTPS)
+    'AUTH_COOKIE_SAMESITE': 'Lax',
+}
