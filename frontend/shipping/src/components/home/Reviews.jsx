@@ -10,7 +10,8 @@ export default function Reviews() {
     axios
       .get("http://localhost:8000/api/home/testimonials/")
       .then((res) => {
-        setReviews(res.data);
+        // Ensure res.data is an array
+        setReviews(Array.isArray(res.data) ? res.data : []);
         setLoading(false);
       })
       .catch((err) => {
@@ -21,6 +22,7 @@ export default function Reviews() {
 
   if (loading) return <p className="text-center text-teal-700">Loading reviews...</p>;
   if (error) return <p className="text-center text-red-600">{error}</p>;
+  if (reviews.length === 0) return <p className="text-center text-teal-700">No testimonials available.</p>;
 
   return (
     <section className="bg-gradient-to-br from-teal-50 to-white py-16 px-6">

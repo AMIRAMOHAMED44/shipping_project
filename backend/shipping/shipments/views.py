@@ -1,10 +1,19 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny
 from .models import Shipment, City
 from .serializers import ShipmentSerializer, CitySerializer
 from .utils import EGYPTIAN_CITIES
 from rest_framework.exceptions import ValidationError
+from rest_framework import viewsets, status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
+from .models import Shipment, City
+from .serializers import ShipmentSerializer, CitySerializer
+from .utils import EGYPTIAN_CITIES
 
 class CityViewSet(viewsets.ModelViewSet):
     queryset = City.objects.all()
@@ -19,8 +28,21 @@ class CityViewSet(viewsets.ModelViewSet):
         return queryset
 
 class ShipmentViewSet(viewsets.ModelViewSet):
-    queryset = Shipment.objects.all().order_by('-created_at')
     serializer_class = ShipmentSerializer
+    permission_classes = [IsAuthenticated]  # فقط المستخدمين المسجلين
+
+    def get_queryset(self):
+        # إرجاع الشحنات التي أنشأها المستخدم الحالي فقط
+        return Shipment.objects.filter(user=self.request.user).order_by('-created_at')
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        # نفترض أن للمستخدم حقل current_plan مع weight_limit
+        plan = getattr(user, 'current_plan', None)
+        shipment_weight = serializer.validated_data.get('weight')
+        if plan and shipment_weight > plan.weight_limit:
+            raise ValidationError(f"Shipment weight exceeds your plan limit of {plan.weight_limit} kg")
+        serializer.save(user=user)
 
     def validate_city(self, city_name):
         if city_name not in EGYPTIAN_CITIES:
@@ -46,9 +68,22 @@ class ShipmentViewSet(viewsets.ModelViewSet):
         shipment.save()
         return Response({"status": "Shipment cancelled successfully"})
 
-    @action(detail=False, methods=['get'])
-    def cities_list(self, request):
-        return Response(EGYPTIAN_CITIES)
+    # @action(detail=False, methods=['get'])
+    # def cities_list(self, request):
+    #     return Response(EGYPTIAN_CITIES)
+    # ------------------------------------------------
+
+    @action(detail=False, methods=['get'], permission_classes=[AllowAny])
+    def track(self, request):
+        tracking_id = request.query_params.get('tracking_id')
+        if not tracking_id:
+            return Response({"error": "Tracking ID required"}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            shipment = Shipment.objects.get(tracking_id=tracking_id)
+            serializer = self.get_serializer(shipment)
+            return Response(serializer.data)
+        except Shipment.DoesNotExist:
+            return Response({"error": "Shipment not found"}, status=status.HTTP_404_NOT_FOUND)
 
     def destroy(self, request, *args, **kwargs):
         shipment = self.get_object()

@@ -1,10 +1,12 @@
-import { useState, useEffect, useContext } from 'react';
-import { toast } from 'react-toastify';
-import AuthContext from '../../context/AuthContext.jsx';
+import { useState, useEffect } from 'react';
+
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import bgImage from '../../assets/17.jpg';
+import { toast } from 'react-toastify';
 
 export default function CreateShipment() {
-  const { api } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     origin: '',
     destination: '',
@@ -17,21 +19,22 @@ export default function CreateShipment() {
   const [cities, setCities] = useState([]);
   const [createdShipment, setCreatedShipment] = useState(null);
 
+  // جلب المدن
   useEffect(() => {
     const fetchCities = async () => {
       try {
-        const response = await api.get('/cities/');
-        console.log('Cities response:', response.data);
+        const access = localStorage.getItem('access');
+        const response = await axios.get('http://localhost:8000/api/cities/', {
+          headers: access ? { Authorization: `Bearer ${access}` } : {}
+        });
         setCities(Array.isArray(response.data) ? response.data : response.data.results || []);
       } catch (err) {
-        console.error('Error fetching cities:', err.response?.data || err.message);
-        setError('Failed to load cities. Please ensure you are logged in.');
-        toast.error('Failed to load cities.');
+        console.error('Error fetching cities:', err);
         setCities([]);
       }
     };
     fetchCities();
-  }, [api]);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -52,7 +55,6 @@ export default function CreateShipment() {
       if (isNaN(formData.weight) || parseFloat(formData.weight) <= 0) {
         throw new Error('Weight must be a positive number');
       }
-
       const payload = {
         origin: formData.origin,
         destination: formData.destination,
@@ -60,17 +62,25 @@ export default function CreateShipment() {
         description: formData.description
       };
 
-      const res = await api.post('/shipments/', payload);
-      console.log('Shipment created:', res.data);
+      const access = localStorage.getItem('access');
+      const res = await axios.post('http://localhost:8000/api/shipments/', payload, {
+        headers: {
+          Authorization: `Bearer ${access}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      toast.success('Shipment created successfully!');
       setSuccess(true);
       setCreatedShipment(res.data);
       setFormData({ origin: '', destination: '', weight: '', description: '' });
-      toast.success('Shipment created successfully!');
     } catch (err) {
-      const errorMsg = err.response?.data?.error || err.response?.data?.detail || err.message || 'Error creating shipment';
-      console.error('Shipment creation error:', err.response?.data || err);
-      setError(errorMsg);
-      toast.error(errorMsg);
+      console.error("Error details:", err.response?.data);
+      setError(
+        err.response?.data?.detail ||
+        err.response?.data ||
+        err.message ||
+        "Error creating shipment"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -83,19 +93,16 @@ export default function CreateShipment() {
     >
       <div className="w-full max-w-md sm:max-w-lg md:max-w-2xl bg-white/40 backdrop-blur-md rounded-2xl shadow-2xl p-6 sm:p-8 md:p-10">
         <h2 className="text-2xl sm:text-3xl font-bold text-center text-teal-800 mb-6">🚚 Create a Shipment</h2>
-
         {error && (
           <div className="mb-4 p-4 rounded-md bg-red-100 border border-red-300 text-red-800 shadow-sm text-sm sm:text-base">
             ❌ {error}
           </div>
         )}
-
         {success && (
           <div className="mb-4 p-4 rounded-md bg-green-100 border border-green-300 text-green-800 shadow-sm text-sm sm:text-base">
             ✅ Shipment created successfully!
           </div>
         )}
-
         <form onSubmit={handleSubmit} className="space-y-5 text-lg">
           <div>
             <label className="block mb-1 font-medium text-gray-700">Origin City</label>
@@ -107,16 +114,13 @@ export default function CreateShipment() {
               required
             >
               <option value="">Select Origin</option>
-              {cities.length === 0 ? (
-                <option value="" disabled>No cities available</option>
-              ) : (
-                cities.map(city => (
-                  <option key={`origin-${city.id}`} value={city.name}>{city.name}</option>
-                ))
-              )}
+              {cities.map(city => (
+                <option key={`origin-${city.id}`} value={city.name}>
+                  {city.name}
+                </option>
+              ))}
             </select>
           </div>
-
           <div>
             <label className="block mb-1 font-medium text-gray-700">Destination City</label>
             <select
@@ -127,19 +131,16 @@ export default function CreateShipment() {
               required
             >
               <option value="">Select Destination</option>
-              {cities.length === 0 ? (
-                <option value="" disabled>No cities available</option>
-              ) : (
-                cities.map(city => (
-                  <option key={`dest-${city.id}`} value={city.name}>{city.name}</option>
-                ))
-              )}
+              {cities.map(city => (
+                <option key={`dest-${city.id}`} value={city.name}>
+                  {city.name}
+                </option>
+              ))}
             </select>
           </div>
-
           <div>
             <label className="block mb-1 font-medium text-gray-700">
-              Weight (kg) <span className="text-gray-500 text-base">(Min: 0.1kg)</span>
+              Weight (kg) <span className="text-gray-500 text-base">(Your plan limit applies)</span>
             </label>
             <input
               type="number"
@@ -153,7 +154,6 @@ export default function CreateShipment() {
               required
             />
           </div>
-
           <div>
             <label className="block mb-1 font-medium text-gray-700">Description</label>
             <textarea
@@ -165,7 +165,6 @@ export default function CreateShipment() {
               placeholder="e.g. Books and clothes"
             />
           </div>
-
           <button
             type="submit"
             disabled={isLoading}
@@ -176,11 +175,10 @@ export default function CreateShipment() {
             {isLoading ? 'Processing...' : 'Create Shipment'}
           </button>
         </form>
-
         {createdShipment && (
-          <div className="mt-6 p-5 bg-teal-50 border border-teal-200 rounded-xl text-sm sm:text-base text-gray-800">
+          <div className="mt-6 p-5 bg-teal-50 border border-teal-200 rounded-xl text-sm sm:text-base">
             <h3 className="text-lg font-semibold text-teal-800 mb-2">📄 Shipment Details</h3>
-            <ul className="space-y-1">
+            <ul className="space-y-1 text-gray-800">
               <li><strong>Tracking ID:</strong> {createdShipment.tracking_id}</li>
               <li><strong>Estimated Cost:</strong> EGP {createdShipment.cost?.toFixed(2)}</li>
               <li><strong>Estimated Delivery:</strong> {new Date(createdShipment.estimated_delivery).toLocaleDateString()}</li>

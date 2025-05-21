@@ -83,6 +83,7 @@ export const AuthProvider = ({ children }) => {
       const { access, refresh } = res.data;
       localStorage.setItem("access", access);
       localStorage.setItem("refresh", refresh);
+      
       const userRes = await api.get("/account/account/");
       setUser(userRes.data);
       setIsAuthenticated(true);
