@@ -16,16 +16,17 @@ export const AuthProvider = ({ children }) => {
   });
 
   // Axios interceptor to attach token
-  api.interceptors.request.use(
-    (config) => {
-      const token = localStorage.getItem("access");
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-      return config;
-    },
-    (error) => Promise.reject(error)
-  );
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("access");
+    const publicEndpoints = ['/home/testimonials/', '/home/testimonials/1/'];
+    if (token && !publicEndpoints.some(endpoint => config.url.includes(endpoint))) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
   // Axios interceptor for token refresh
   api.interceptors.response.use(

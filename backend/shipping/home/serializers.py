@@ -1,15 +1,22 @@
 from rest_framework import serializers
 from .models import Plan, Testimonial, CompanyInfo, ContactMessage
 
+
 class PlanSerializer(serializers.ModelSerializer):
     class Meta:
         model = Plan
         fields = '__all__'
 
 class TestimonialSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(
+        read_only=True,
+        default=serializers.CurrentUserDefault(),
+        allow_null=True
+    )
+
     class Meta:
         model = Testimonial
-        fields = '__all__'
+        fields = ['id', 'user', 'name', 'feedback', 'company', 'rating', 'created_at']
 
 class CompanyInfoSerializer(serializers.ModelSerializer):
     class Meta:
