@@ -10,7 +10,7 @@ export default function Register() {
     email: "",
     password: "",
     role: "customer",
-    document: null,
+    city: "",
   });
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
@@ -19,7 +19,6 @@ export default function Register() {
 
   const validateForm = () => {
     const newErrors = {};
-    // Username validation
     if (!formData.username) {
       newErrors.username = "Username is required";
     } else if (formData.username.length < 3) {
@@ -27,14 +26,12 @@ export default function Register() {
     } else if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
       newErrors.username = "Username can only contain letters, numbers, and underscores";
     }
-    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email) {
       newErrors.email = "Email is required";
     } else if (!emailRegex.test(formData.email)) {
       newErrors.email = "Please enter a valid email address";
     }
-    // Password validation
     if (!formData.password) {
       newErrors.password = "Password is required";
     } else if (formData.password.length < 8) {
@@ -48,19 +45,18 @@ export default function Register() {
     } else if (!/[!@#$%^&*]/.test(formData.password)) {
       newErrors.password = "Password must include at least one special character";
     }
-    // Document validation for agent
-    if (formData.role === "agent" && !formData.document) {
-      newErrors.document = "Document is required for agent registration";
+    if (formData.role === "agent" && !formData.city) {
+      newErrors.city = "City is required for agent registration";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleChange = (e) => {
-    const { name, value, files } = e.target;
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: files ? files[0] : value,
+      [name]: value,
     }));
     setErrors((prev) => ({ ...prev, [name]: null }));
   };
@@ -69,18 +65,15 @@ export default function Register() {
     e.preventDefault();
     if (!validateForm()) return;
     setIsLoading(true);
-    const data = new FormData();
-    for (let key in formData) {
-      if (formData[key]) {
-        data.append(key, formData[key]);
-      }
-    }
     try {
-      await api.post("/users/register/", data);
+      console.log("Sending data:", formData);
+      const response = await api.post("/users/register/", formData);
       toast.success("Registration successful! Please log in.");
       navigate("/login");
     } catch (err) {
-      toast.error(err.response?.data?.detail || "Registration failed. Please try again.");
+      const errorMsg = err.response?.data?.detail || Object.values(err.response?.data || {}).join(", ") || "Registration failed. Please try again.";
+      toast.error(errorMsg);
+      console.error("Registration error:", err.response?.data);
     } finally {
       setIsLoading(false);
     }
@@ -169,17 +162,19 @@ export default function Register() {
         {formData.role === "agent" && (
           <div className="mb-4">
             <label className="block text-teal-800 font-semibold mb-1 text-base sm:text-lg">
-              Upload Document
+              City
             </label>
             <input
-              name="document"
-              type="file"
+              name="city"
+              value={formData.city}
               onChange={handleChange}
+              placeholder="Your city"
+              required={formData.role === "agent"}
               className={`w-full px-4 py-2 sm:px-5 sm:py-3 rounded-lg border ${
-                errors.document ? "border-red-500" : "border-teal-300"
-              } focus:outline-none focus:ring-2 focus:ring-teal-500 file:mr-3 file:py-2 file:px-4 file:border-0 file:text-sm file:bg-teal-100 file:text-teal-700`}
+                errors.city ? "border-red-500" : "border-teal-300"
+              } focus:outline-none focus:ring-2 focus:ring-teal-500 text-base`}
             />
-            {errors.document && <p className="text-red-500 text-sm mt-1">{errors.document}</p>}
+            {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
           </div>
         )}
         <button

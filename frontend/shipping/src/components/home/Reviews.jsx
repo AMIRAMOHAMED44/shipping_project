@@ -53,36 +53,21 @@ export default function Reviews() {
     setFormData((prev) => ({ ...prev, rating: value }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!isAuthenticated || !user) {
-      setSubmitStatus("Please log in to submit a review.");
-      toast.error("Please log in to submit a review.");
-      return;
-    }
-    const token = localStorage.getItem('access');
-    if (!token) {
-      setSubmitStatus("Authentication token missing. Please log in again.");
-      toast.error("Session expired. Please log in again.");
-      return;
-    }
-    setSubmitStatus(null);
-    try {
-      await api.post(
-        "/home/testimonials/",
-        { ...formData, name: user.username }
-      );
-      setSubmitStatus("Review submitted successfully!");
-      toast.success("Review submitted successfully!");
-      setFormData({ feedback: "", company: "", rating: 5 });
-      const res = await api.get("/home/testimonials/");
-      setReviews(Array.isArray(res.data.results) ? res.data.results : res.data);
-    } catch (err) {
-      const errorMsg = err.response?.data?.detail || "Failed to submit review.";
-      setSubmitStatus(errorMsg);
-      toast.error(errorMsg);
-    }
-  };
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const response = await api.post("/home/testimonials/create/", {
+      feedback,
+      company,
+      rating,
+      name: user.username,
+    });
+    toast.success("Review submitted successfully!");
+  } catch (err) {
+    toast.error("Failed to submit review.");
+    console.error("Review error:", err.response?.data);
+  }
+};
 
   if (loading) return <p className="text-center text-teal-700">Loading reviews...</p>;
   if (error) return <p className="text-center text-red-600">{error}</p>;

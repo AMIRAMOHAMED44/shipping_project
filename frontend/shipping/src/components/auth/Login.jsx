@@ -38,18 +38,19 @@ export default function Login() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-    try {
-      await login(email, password);
-      toast.success("Login successful!");
-      navigate("/dashboard");
-    } catch (err) {
-      toast.error(err.response?.data?.detail || "Login failed. Please try again.");
-    }
-  };
-
+const handleLogin = async (e) => {
+  e.preventDefault();
+  if (!validateForm()) return;
+  try {
+    await login(email, password);
+    toast.success("Login successful!");
+    navigate("/dashboard");
+  } catch (err) {
+    const errorMsg = err.response?.data?.detail || "Login failed. Please try again.";
+    toast.error(errorMsg);
+    console.error("Login error:", err.response?.data);
+  }
+};
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 to-white flex items-center justify-center px-4 sm:px-6 md:px-8 py-10">
       <form
