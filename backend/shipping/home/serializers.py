@@ -8,15 +8,10 @@ class PlanSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class TestimonialSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(
-        read_only=True,
-        default=serializers.CurrentUserDefault(),
-        allow_null=True
-    )
-
     class Meta:
         model = Testimonial
-        fields = ['id', 'user', 'name', 'feedback', 'company', 'rating', 'created_at']
+        fields = ['id', 'name', 'feedback', 'company', 'rating', 'created_at']
+
 
 class CompanyInfoSerializer(serializers.ModelSerializer):
     class Meta:

@@ -7,6 +7,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.exceptions import NotFound
 
 
+
 class PlanViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Plan.objects.all()
     serializer_class = PlanSerializer
@@ -14,6 +15,7 @@ class PlanViewSet(viewsets.ReadOnlyModelViewSet):
 class TestimonialViewSet(viewsets.ModelViewSet):
     queryset = Testimonial.objects.all().order_by('-created_at')
     serializer_class = TestimonialSerializer
+    http_method_names = ['get', 'post', 'head', 'options']
 
     def get_permissions(self):
         if self.action in ['create']:
@@ -21,6 +23,7 @@ class TestimonialViewSet(viewsets.ModelViewSet):
         return [AllowAny()]
 
     def perform_create(self, serializer):
+        print("POST request data:", self.request.data)
         serializer.save(user=self.request.user, name=self.request.user.username)
 
     def get_object(self):

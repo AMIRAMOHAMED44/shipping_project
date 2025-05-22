@@ -1,5 +1,8 @@
 from django.db import models
 from django.conf import settings
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 class Plan(models.Model):
     name = models.CharField(max_length=50)
@@ -10,14 +13,15 @@ class Plan(models.Model):
         return self.name
 
 class Testimonial(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     name = models.CharField(max_length=100)
     feedback = models.TextField()
     company = models.CharField(max_length=100, blank=True)
-    rating = models.PositiveIntegerField(default=5, choices=[(i, i) for i in range(1, 6)])
+    rating = models.PositiveIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
+
     def __str__(self):
-        return f"{self.name} ({self.company}) - {self.rating} stars"
+        return f"{self.name} - {self.rating}"
 
 class CompanyInfo(models.Model):
     intro = models.TextField()
