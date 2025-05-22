@@ -1,0 +1,37 @@
+[
+  {
+    "id": 1,
+    "customerName": "Ahmed Hossam",
+    "amount": 150.0,
+    "status": "Paid",
+    "date": "2025-05-15"
+  },
+  {
+    "id": 2,
+    "customerName": "Mona Yasser",
+    "amount": 200.5,
+    "status": "Pending",
+    "date": "2025-05-16"
+  },
+  {
+    "id": 3,
+    "customerName": "Karim Mostafa",
+    "amount": 300.0,
+    "status": "Paid",
+    "date": "2025-05-14"
+  },
+  {
+    "id": 4,
+    "customerName": "Aya Adel",
+    "amount": 120.75,
+    "status": "Pending",
+    "date": "2025-05-17"
+  },
+  {
+    "id": 5,
+    "customerName": "Tamer Fathy",
+    "amount": 500.0,
+    "status": "Paid",
+    "date": "2025-05-13"
+  }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "name": "Ahmed Ali",
+    "email": "ahmed.agent@example.com",
+    "phone": "01234567890",
+    "region": "Cairo",
+    "status": "Active",
+    "deliveryRequestStatus": "Pending"
+  },
+  {
+    "id": 2,
+    "name": "Sara Tarek",
+    "email": "sara.agent@example.com",
+    "phone": "01123456789",
+    "region": "Alexandria",
+    "status": "Inactive",
+    "deliveryRequestStatus": "Pending"
+  }
+]

@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    
     'corsheaders',
     'adminpanel',
     'agents',
@@ -47,7 +48,8 @@ INSTALLED_APPS = [
     'users',
     'home',
     'rest_framework_simplejwt',
-    'accounts'
+    'accounts',
+    'admindashboard'
     
 
 
@@ -87,17 +89,17 @@ CORS_ALLOW_HEADERS = [
 # REST Framework Settings
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10
-    
-}
-REST_FRAMEWORK = {
+    'PAGE_SIZE': 10,
+
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
 }
+
 
 ROOT_URLCONF = 'shipping.urls'
 import os
@@ -129,7 +131,7 @@ DATABASES = {
         'USER':'postgres',
         'PASSWORD':'555',
         'HOST':'localhost',
-        'PORT':5432
+        'PORT':5434
 
     }
 }
