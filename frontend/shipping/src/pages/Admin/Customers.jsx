@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios"; // ✨ استدعاء axios
+import axios from "axios";
 
 const Customers = () => {
   const [customers, setCustomers] = useState([]);
@@ -7,8 +7,7 @@ const Customers = () => {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
 
   useEffect(() => {
-    // 🟡 هات الـ token من localStorage أو أي مكان مخزّن فيه بعد تسجيل الدخول
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("access"); // ✅ غيّرت من "token" لـ "access"
 
     axios
       .get("http://localhost:8000/api/users/all/", {
@@ -17,21 +16,19 @@ const Customers = () => {
         },
       })
       .then((res) => {
-        setCustomers(res.data); // استبدال mock data بالـ real API
+        setCustomers(res.data);
       })
       .catch((err) => {
         console.error("Error fetching customers:", err);
       });
   }, []);
 
-  // فلترة العملاء حسب الاسم أو الإيميل
   const filteredCustomers = customers.filter((customer) =>
     `${customer.name} ${customer.email}`
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
   );
 
-  // تغيير حالة العميل (Active <-> Inactive)
   const handleToggleStatus = (id) => {
     setCustomers((prevCustomers) =>
       prevCustomers.map((customer) =>
@@ -45,17 +42,32 @@ const Customers = () => {
     );
   };
 
-  // حذف عميل
-  const handleDeleteCustomer = (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this customer?"
+
+const handleDeleteCustomer = async (id) => {
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this customer?"
+  );
+  if (!confirmDelete) return;
+
+  try {
+    const token = localStorage.getItem("access");  // أو حسب مكان التخزين
+    await axios.delete(`http://localhost:8000/api/users/${id}/`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    // لو نجح الحذف، حدّث ال state بتاعت العملاء
+    setCustomers(prevCustomers =>
+      prevCustomers.filter(customer => customer.id !== id)
     );
-    if (confirmDelete) {
-      setCustomers((prevCustomers) =>
-        prevCustomers.filter((customer) => customer.id !== id)
-      );
-    }
-  };
+
+  } catch (error) {
+    console.error("Failed to delete customer:", error);
+    alert("Failed to delete customer. Please try again.");
+  }
+};
+
 
   return (
     <div className="p-6">
@@ -79,8 +91,6 @@ const Customers = () => {
               <th className="px-6 py-3 rounded-tl-xl">#</th>
               <th className="px-6 py-3">Name</th>
               <th className="px-6 py-3">Email</th>
-              <th className="px-6 py-3">Phone</th>
-              <th className="px-6 py-3">Status</th>
               <th className="px-6 py-3 rounded-tr-xl">Actions</th>
             </tr>
           </thead>
@@ -95,18 +105,6 @@ const Customers = () => {
                 <td className="px-6 py-4">{index + 1}</td>
                 <td className="px-6 py-4">{customer.name}</td>
                 <td className="px-6 py-4">{customer.email}</td>
-                <td className="px-6 py-4">{customer.phone}</td>
-                <td className="px-6 py-4">
-                  <span
-                    className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                      customer.status === "Active"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
-                  >
-                    {customer.status}
-                  </span>
-                </td>
                 <td className="px-6 py-4 flex gap-2">
                   <button
                     onClick={() => handleToggleStatus(customer.id)}
@@ -132,7 +130,7 @@ const Customers = () => {
 
             {filteredCustomers.length === 0 && (
               <tr>
-                <td colSpan="6" className="text-center py-6 text-gray-500">
+                <td colSpan="4" className="text-center py-6 text-gray-500">
                   No customers found.
                 </td>
               </tr>
@@ -151,12 +149,6 @@ const Customers = () => {
             </p>
             <p>
               <strong>Email:</strong> {selectedCustomer.email}
-            </p>
-            <p>
-              <strong>Phone:</strong> {selectedCustomer.phone}
-            </p>
-            <p>
-              <strong>Status:</strong> {selectedCustomer.status}
             </p>
 
             <div className="mt-4 text-right">

@@ -21,3 +21,5 @@ class AdminLoginView(APIView):
             })
         else:
             return Response({"detail": "Unauthorized: Admins only"}, status=status.HTTP_401_UNAUTHORIZED)
+
+            
