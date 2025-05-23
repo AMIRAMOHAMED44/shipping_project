@@ -26,7 +26,6 @@ export default function Dashboard({ profile, logout }) {
     );
   }
 
-  // Handle no current plan
   if (!profile.current_plan) {
     console.warn('No current plan assigned for user:', profile.email);
     toast.warn('No current plan assigned. Contact support or upgrade your plan.');
@@ -36,7 +35,6 @@ export default function Dashboard({ profile, logout }) {
   if (profile.current_plan.name === "regular") {
     expire_date = "No expiry date";
   }
-// profile.plan_expiry ? new Date(profile.plan_expiry).toLocaleDateString() : 'N/A'
 
 
 
