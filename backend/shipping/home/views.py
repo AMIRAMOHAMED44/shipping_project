@@ -23,7 +23,8 @@ class TestimonialViewSet(viewsets.ModelViewSet):
         return [AllowAny()]
 
     def perform_create(self, serializer):
-        print("POST request data:", self.request.data)
+        print("POST request data:", self.request.data) # Debug
+        print("User:", self.request.user, "Username:", self.request.user.username) # Debug
         serializer.save(user=self.request.user, name=self.request.user.username)
 
     def get_object(self):

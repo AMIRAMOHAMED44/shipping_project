@@ -68,6 +68,7 @@ class ShipmentViewSet(viewsets.ModelViewSet):
         shipment.save()
         return Response({"status": "Shipment cancelled successfully"})
 
+
     # @action(detail=False, methods=['get'])
     # def cities_list(self, request):
     #     return Response(EGYPTIAN_CITIES)

@@ -13,44 +13,33 @@ export default function Login() {
 
   const validateForm = () => {
     const newErrors = {};
-    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email) {
       newErrors.email = "Email is required";
     } else if (!emailRegex.test(email)) {
       newErrors.email = "Please enter a valid email address";
     }
-    // Password validation
     if (!password) {
       newErrors.password = "Password is required";
-    } else if (password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters";
-    } else if (!/[A-Z]/.test(password)) {
-      newErrors.password = "Password must include at least one uppercase letter";
-    } else if (!/[a-z]/.test(password)) {
-      newErrors.password = "Password must include at least one lowercase letter";
-    } else if (!/[0-9]/.test(password)) {
-      newErrors.password = "Password must include at least one number";
-    } else if (!/[!@#$%^&*]/.test(password)) {
-      newErrors.password = "Password must include at least one special character";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-const handleLogin = async (e) => {
-  e.preventDefault();
-  if (!validateForm()) return;
-  try {
-    await login(email, password);
-    toast.success("Login successful!");
-    navigate("/dashboard");
-  } catch (err) {
-    const errorMsg = err.response?.data?.detail || "Login failed. Please try again.";
-    toast.error(errorMsg);
-    console.error("Login error:", err.response?.data);
-  }
-};
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+    try {
+      await login(email, password);
+      toast.success("Login successful!");
+      navigate("/dashboard");
+    } catch (err) {
+      const errorMsg = err.response?.data?.detail || "Login failed. Please try again.";
+      toast.error(errorMsg);
+      console.error("Login error:", err.response?.data);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 to-white flex items-center justify-center px-4 sm:px-6 md:px-8 py-10">
       <form

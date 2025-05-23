@@ -9,26 +9,23 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Initialize Axios instance
   const api = axios.create({
     baseURL: "http://localhost:8000/api",
     headers: { "Content-Type": "application/json" },
   });
 
-  // Axios interceptor to attach token
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("access");
-    const publicEndpoints = ['/home/testimonials/', '/home/testimonials/1/'];
-    if (token && !publicEndpoints.some(endpoint => config.url.includes(endpoint))) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+  api.interceptors.request.use(
+    (config) => {
+      const token = localStorage.getItem("access");
+      const publicEndpoints = ['/home/testimonials/', '/home/testimonials/1/'];
+      if (token && !publicEndpoints.some(endpoint => config.url.includes(endpoint))) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
 
-  // Axios interceptor for token refresh
   api.interceptors.response.use(
     (response) => response,
     async (error) => {
@@ -53,7 +50,6 @@ api.interceptors.request.use(
     }
   );
 
-  // Load user on mount
   useEffect(() => {
     const initializeAuth = async () => {
       const token = localStorage.getItem("access");
@@ -68,7 +64,7 @@ api.interceptors.request.use(
             await refreshToken();
           }
         } catch (err) {
-          console.error("Auth initialization failed:", err);
+          console.error("Auth initialization failed:", err.response?.data || err.message);
           logout();
         }
       }
@@ -77,14 +73,14 @@ api.interceptors.request.use(
     initializeAuth();
   }, []);
 
-  // Login function
   const login = async (email, password) => {
     try {
       const res = await api.post("/users/login/", { email, password });
       const { access, refresh } = res.data;
       localStorage.setItem("access", access);
       localStorage.setItem("refresh", refresh);
-      
+      const decoded = jwtDecode(access);
+      console.log("Token payload:", decoded); // Debug
       const userRes = await api.get("/account/account/");
       setUser(userRes.data);
       setIsAuthenticated(true);
@@ -95,7 +91,6 @@ api.interceptors.request.use(
     }
   };
 
-  // Logout function
   const logout = () => {
     setUser(null);
     setIsAuthenticated(false);
@@ -103,7 +98,6 @@ api.interceptors.request.use(
     localStorage.removeItem("refresh");
   };
 
-  // Refresh token
   const refreshToken = async () => {
     try {
       const refreshToken = localStorage.getItem("refresh");
@@ -116,7 +110,7 @@ api.interceptors.request.use(
       setUser(userRes.data);
       setIsAuthenticated(true);
     } catch (err) {
-      console.error("Token refresh failed:", err);
+      console.error("Token refresh failed:", err.response?.data || err.message);
       logout();
     }
   };

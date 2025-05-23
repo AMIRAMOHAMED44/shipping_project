@@ -53,21 +53,24 @@ export default function Reviews() {
     setFormData((prev) => ({ ...prev, rating: value }));
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    const response = await api.post("/home/testimonials/create/", {
-      feedback,
-      company,
-      rating,
-      name: user.username,
-    });
-    toast.success("Review submitted successfully!");
-  } catch (err) {
-    toast.error("Failed to submit review.");
-    console.error("Review error:", err.response?.data);
-  }
-};
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await api.post("/home/testimonials/create/", {
+        feedback: formData.feedback,
+        company: formData.company,
+        rating: formData.rating,
+        name: user.username,
+      });
+      toast.success("Review submitted successfully!");
+      setSubmitStatus("Review submitted successfully!");
+      setFormData({ feedback: "", company: "", rating: 5 }); // Reset form
+    } catch (err) {
+      toast.error("Failed to submit review.");
+      console.error("Review error:", err.response?.data || err.message);
+      setSubmitStatus("Failed to submit review.");
+    }
+  };
 
   if (loading) return <p className="text-center text-teal-700">Loading reviews...</p>;
   if (error) return <p className="text-center text-red-600">{error}</p>;

@@ -11,7 +11,11 @@ class TestimonialSerializer(serializers.ModelSerializer):
     class Meta:
         model = Testimonial
         fields = ['id', 'name', 'feedback', 'company', 'rating', 'created_at']
-
+        extra_kwargs = {
+            'name': {'required': False, 'allow_null': True},
+            'user': {'write_only': True},
+            'created_at': {'read_only': True},
+        }
 
 class CompanyInfoSerializer(serializers.ModelSerializer):
     class Meta:
