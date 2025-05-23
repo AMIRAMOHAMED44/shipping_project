@@ -37,7 +37,6 @@ class ShipmentSerializer(serializers.ModelSerializer):
         read_only_fields = ['tracking_id', 'status', 'cost', 'distance', 'estimated_delivery', 'created_at']
 
     def get_origin_arabic(self, obj):
-        # مثال، إذا كان لديك ترجمة المدينة
         return obj.origin  # أو الترجمة المناسبة
 
     def get_destination_arabic(self, obj):
