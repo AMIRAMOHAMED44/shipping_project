@@ -4,11 +4,12 @@ import AuthContext from "../../context/AuthContext.jsx";
 import { toast } from "react-toastify";
 
 export default function Login() {
-  const { login, isLoading } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { login, user } = useContext(AuthContext); // Use login from AuthContext
   const navigate = useNavigate();
 
   const validateForm = () => {
@@ -29,14 +30,24 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
+    setIsLoading(true);
     try {
       await login(email, password);
       toast.success("Login successful!");
-      navigate("/dashboard");
+      // Role-based redirect
+      if (user?.role === "customer") {
+        navigate("/account");
+      } else if (user?.role === "agent") {
+        navigate("/agents/available-shipments");
+      } else {
+        navigate("/dashboard"); // Fallback
+      }
     } catch (err) {
       const errorMsg = err.response?.data?.detail || "Login failed. Please try again.";
       toast.error(errorMsg);
       console.error("Login error:", err.response?.data);
+    } finally {
+      setIsLoading(false);
     }
   };
 

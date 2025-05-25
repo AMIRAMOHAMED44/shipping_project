@@ -4,6 +4,7 @@ from django.conf import settings  # للتعامل مع users
 from .utils import generate_tracking_id, calculate_distance, calculate_cost, calculate_delivery_time
 from datetime import timedelta
 from django.utils import timezone
+from agents.models import Agent
 
 
 class City(models.Model):
@@ -34,6 +35,7 @@ class Shipment(models.Model):
     estimated_delivery = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    assigned_agent = models.ForeignKey(Agent, on_delete=models.SET_NULL, null=True, blank=True)
     # إضافة علاقة المستخدم (يفترض أن المستخدم موجود في settings.AUTH_USER_MODEL)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,

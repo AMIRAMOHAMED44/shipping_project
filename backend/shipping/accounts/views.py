@@ -13,8 +13,8 @@ class CustomerDashboardView(APIView):
 
     def get(self, request):
         user = request.user
-        if user.role != "customer":
-            return Response({'detail': 'Unauthorized'}, status=403)
+        # if user.role != "customer":
+        #     return Response({'detail': 'Unauthorized'}, status=403)
 
         customer_profile, created = CustomerProfile.objects.get_or_create(user=user)
 
