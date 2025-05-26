@@ -8,7 +8,12 @@ const Customers = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("access"); // ✅ غيّرت من "token" لـ "access"
+    console.log("Token from localStorage:", token);
 
+  if (!token) {
+    console.warn("No access token found, user might not be logged in.");
+    return; // أو ممكن تعمل redirect لصفحة تسجيل الدخول
+  }
     axios
       .get("http://localhost:8000/api/users/all/", {
         headers: {
@@ -24,7 +29,7 @@ const Customers = () => {
   }, []);
 
   const filteredCustomers = customers.filter((customer) =>
-    `${customer.name} ${customer.email}`
+    `${customer.username} ${customer.email}`
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
   );
@@ -103,7 +108,7 @@ const handleDeleteCustomer = async (id) => {
                 }`}
               >
                 <td className="px-6 py-4">{index + 1}</td>
-                <td className="px-6 py-4">{customer.name}</td>
+                <td className="px-6 py-4">{customer.username}</td>
                 <td className="px-6 py-4">{customer.email}</td>
                 <td className="px-6 py-4 flex gap-2">
                   <button
@@ -145,7 +150,7 @@ const handleDeleteCustomer = async (id) => {
           <div className="bg-white p-6 rounded-xl shadow-lg w-[90%] max-w-md">
             <h3 className="text-xl font-semibold mb-4">Customer Details</h3>
             <p>
-              <strong>Name:</strong> {selectedCustomer.name}
+              <strong>Name:</strong> {selectedCustomer.username}
             </p>
             <p>
               <strong>Email:</strong> {selectedCustomer.email}

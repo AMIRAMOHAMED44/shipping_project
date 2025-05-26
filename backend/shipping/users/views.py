@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import IsAuthenticated
-from .permissions import IsAdminOrReadOnly
+from .permissions import IsStaticAdmin
 
 User = get_user_model()
 
@@ -30,10 +30,10 @@ class CustomLoginView(TokenObtainPairView):
 class UserListView(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [IsStaticAdmin]
 
 # delete users from admindashboard
 class UserDeleteView(generics.RetrieveDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsStaticAdmin]
