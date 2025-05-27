@@ -2,7 +2,6 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-# from django.contrib.auth.password_validation import validate_password
 from accounts.models import CustomerProfile, Plan
 from agents.models import Agent
 from django.utils import timezone
