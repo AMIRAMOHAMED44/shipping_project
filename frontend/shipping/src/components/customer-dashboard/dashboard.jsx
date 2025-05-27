@@ -2,9 +2,11 @@ import { useContext } from "react";
 import { toast } from 'react-toastify';
 import AuthContext from "../../context/AuthContext.jsx";
 import bgImage from '../../assets/17.jpg'; // Reuse CreateShipment.jsx background
+import { useNavigate } from "react-router-dom";
 
 export default function Dashboard({ profile, logout }) {
   const { isLoading } = useContext(AuthContext);
+  const navigate = useNavigate(); 
 
   // Debugging logs
   console.log('Dashboard - Profile:', profile);
@@ -36,6 +38,10 @@ export default function Dashboard({ profile, logout }) {
     expire_date = "No expiry date";
   }
 
+if (profile.role === "agent") {
+    navigate("/agents/available-shipments");
+    return null; 
+}
 
 
   return (

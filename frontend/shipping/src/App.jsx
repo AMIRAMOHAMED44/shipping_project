@@ -119,8 +119,8 @@ import MyShipments from "./components/myShipments/MyShipments.jsx";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import { useContext } from "react";
 import AuthContext from "./context/AuthContext.jsx";
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   const { user, isAuthenticated, isLoading, logout } = useContext(AuthContext);
@@ -165,7 +165,7 @@ function App() {
                 <ProtectedRoute
                   isLoading={isLoading}
                   isAuthenticated={isAuthenticated}
-                  allowedRoles={["customer", "agent", "admin"]}
+                  allowedRoles={["customer"]} // Restrict to customers
                 >
                   <Dashboard profile={user} logout={logout} />
                 </ProtectedRoute>
@@ -177,7 +177,7 @@ function App() {
                 <ProtectedRoute
                   isLoading={isLoading}
                   isAuthenticated={isAuthenticated}
-                  allowedRoutes={["customer"]}
+                  allowedRoles={["customer"]} // Fixed typo
                 >
                   <Payment />
                 </ProtectedRoute>

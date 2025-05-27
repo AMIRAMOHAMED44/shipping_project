@@ -145,8 +145,8 @@ export const AuthProvider = ({ children }) => {
   api.interceptors.request.use(
     (config) => {
       const token = localStorage.getItem("access");
-      const publicEndpoints = ['/home/testimonials/', '/home/testimonials/1/'];
-      if (token && !publicEndpoints.some(endpoint => config.url.includes(endpoint))) {
+      const publicEndpoints = ["/home/testimonials/", "/home/testimonials/1/"];
+      if (token && !publicEndpoints.some((endpoint) => config.url.includes(endpoint))) {
         config.headers.Authorization = `Bearer ${token}`;
       }
       return config;
@@ -186,10 +186,7 @@ export const AuthProvider = ({ children }) => {
           const decoded = jwtDecode(token);
           if (decoded.exp * 1000 > Date.now()) {
             const res = await api.get("/account/account/");
-            console.log("Initial user data:", res.data); // Debug
-            if (res.data.role === "agent" && !res.data.agent_profile) {
-              console.warn("Agent profile missing for user:", res.data.email);
-            }
+            console.log("Initial user data:", res.data);
             setUser(res.data);
             setIsAuthenticated(true);
           } else {
@@ -205,32 +202,24 @@ export const AuthProvider = ({ children }) => {
     initializeAuth();
   }, []);
 
-const login = async (email, password) => {
-  try {
-    const res = await api.post("/users/login/", { email, password });
-    const { access, refresh } = res.data;
-    localStorage.setItem("access", access);
-    localStorage.setItem("refresh", refresh);
-    const decoded = jwtDecode(access);
-    console.log("Token payload:", decoded);
+  const login = async (email, password) => {
     try {
+      const res = await api.post("/users/login/", { email, password });
+      const { access, refresh } = res.data;
+      localStorage.setItem("access", access);
+      localStorage.setItem("refresh", refresh);
+      const decoded = jwtDecode(access);
+      console.log("Token payload:", decoded);
       const userRes = await api.get("/account/account/");
       console.log("User data:", userRes.data);
-      if (userRes.data.role === "agent" && !userRes.data.agent_profile) {
-        console.warn("Agent profile missing for user:", userRes.data.email);
-      }
       setUser(userRes.data);
       setIsAuthenticated(true);
-    } catch (userErr) {
-      console.error("Failed to fetch user data:", userErr.response?.data || userErr.message);
-      throw new Error("Unable to fetch user profile. Please try again.");
+      return userRes.data; // Return user data for redirection
+    } catch (err) {
+      console.error("Login failed:", err.response?.data || err.message);
+      throw new Error(err.response?.data?.message || "Login failed. Please check your credentials.");
     }
-    return true;
-  } catch (err) {
-    console.error("Login failed:", err.response?.data || err.message);
-    throw err;
-  }
-};
+  };
 
   const logout = () => {
     setUser(null);
