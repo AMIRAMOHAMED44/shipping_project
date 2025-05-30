@@ -225,3 +225,18 @@ def confirm_delivery(request, shipment_id):
     except Exception as e:
         logger.error(f"Error in confirm_delivery: {str(e)}", exc_info=True)
         return Response({'error': 'Internal server error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# admindashborad agents list
+
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# def all_agents(request):
+#     try:
+#         agents = Agent.objects.all()
+#         serializer = AgentSerializer(agents, many=True)
+#         return Response(serializer.data)
+#     except Exception as e:
+#         logger.error(f"Error in all_agents: {str(e)}", exc_info=True)
+#         return Response({'error': 'Internal server error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

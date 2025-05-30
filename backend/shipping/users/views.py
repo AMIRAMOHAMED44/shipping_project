@@ -24,7 +24,7 @@ class RegisterView(generics.CreateAPIView):
         try:
             user = serializer.save()
             if user.role == 'agent':
-                Agent.objects.create(user=user, city=user.city)
+                Agent.objects.get_or_create(user=user, defaults={"city" : user.city})
             logger.info(f"User registered: {user.username}, role: {user.role}")
             return user
         except IntegrityError as e:
@@ -56,11 +56,17 @@ class CustomLoginView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
 
-# view cutomers data in admindashboard
-class UserListView(generics.ListAPIView):
-    queryset = User.objects.all()
+# customers data
+class CustomerListView(generics.ListAPIView):
+    queryset = User.objects.filter(role='customer')
     serializer_class = UserSerializer
     permission_classes = [IsStaticAdmin]
+
+# agents data
+class AgentListView(generics.ListAPIView):
+    queryset = User.objects.filter(role='agent')
+    serializer_class = UserSerializer
+    permission_classes = [IsStaticAdmin] 
 
 # delete users from admindashboard
 class UserDeleteView(generics.RetrieveDestroyAPIView):
