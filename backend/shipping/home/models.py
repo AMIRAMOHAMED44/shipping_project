@@ -13,7 +13,7 @@ class Plan(models.Model):
         return self.name
 
 class Testimonial(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     name = models.CharField(max_length=100)
     feedback = models.TextField()
     company = models.CharField(max_length=100, blank=True)

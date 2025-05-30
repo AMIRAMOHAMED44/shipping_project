@@ -8,6 +8,8 @@ from .serializers import RegisterSerializer, UserSerializer, CustomTokenObtainPa
 from agents.models import Agent
 from rest_framework.permissions import IsAuthenticated
 from django.db import IntegrityError
+from .permissions import IsStaticAdmin
+
 
 logger = logging.getLogger(__name__)
 
@@ -52,3 +54,16 @@ class CurrentUserView(APIView):
 
 class CustomLoginView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
+
+
+# view cutomers data in admindashboard
+class UserListView(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsStaticAdmin]
+
+# delete users from admindashboard
+class UserDeleteView(generics.RetrieveDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsStaticAdmin]

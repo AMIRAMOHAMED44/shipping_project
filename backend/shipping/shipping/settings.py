@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'users',
     'home',
     'accounts',
+    'admindashboard'
     
 
 
@@ -55,7 +56,6 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -127,9 +127,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'shipping_app',
         'USER':'postgres',
-        'PASSWORD':'123',
+        'PASSWORD':'555',
         'HOST':'localhost',
-        'PORT':5432
+        'PORT':5434
 
     }
 }
@@ -193,3 +193,13 @@ SIMPLE_JWT = {
     'AUTH_COOKIE_SECURE': True,  # Set to True in production (HTTPS)
     'AUTH_COOKIE_SAMESITE': 'Lax',
 }
+
+# settings.py
+
+ADMIN_EMAIL = "admin@example.com"
+ADMIN_PASSWORD = "admin123"
+
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]

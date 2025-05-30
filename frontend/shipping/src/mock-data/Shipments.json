@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "shipmentNumber": "SHP001",
+    "customerName": "Ahmed Ali",
+    "agentName": "Mohamed Hassan",
+    "status": "Pending",
+    "sendDate": "2025-05-01",
+    "deliveryRequestStatus": "Approved",
+    "origin": "Cairo",
+    "destination": "Alexandria",
+    "details": "Fragile package"
+  },
+  {
+    "id": 2,
+    "shipmentNumber": "SHP002",
+    "customerName": "Sara Mohamed",
+    "agentName": "Hany Adel",
+    "status": "In Transit",
+    "sendDate": "2025-05-05",
+    "deliveryRequestStatus": "Approved",
+    "origin": "Giza",
+    "destination": "Aswan",
+    "details": "Documents"
+  }
+]

@@ -1,0 +1,16 @@
+{
+  "stats": [
+    { "id": "stat-1", "title": "Customers", "value": 150, "icon": "👥", "trend": "up" },
+    { "id": "stat-2", "title": "Active Shipments", "value": 45, "icon": "📦", "trend": "stable" },
+    { "id": "stat-3", "title": "Agents", "value": 30, "icon": "🛵", "trend": "up" },
+    { "id": "stat-4", "title": "Today's Orders", "value": 12, "icon": "🔄", "trend": "down" }
+  ],
+  "alerts": [
+    { "id": "alert-1", "type": "warning", "text": "5 agent registrations pending approval", "time": "2h ago" },
+    { "id": "alert-2", "type": "error", "text": "Shipment #123 delayed by 2 days", "time": "4h ago" }
+  ],
+  "activities": [
+    { "id": "activity-1", "text": "New customer: Ahmed Mohamed registered", "time": "2h ago" },
+    { "id": "activity-2", "text": "Shipment #456 status updated to 'Delivered'", "time": "5h ago" }
+  ]
+}

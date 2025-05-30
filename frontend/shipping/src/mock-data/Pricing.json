@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "name": "Basic",
+    "price": 49.99,
+    "limit": "100 shipments/month",
+    "discount": "0%"
+  },
+  {
+    "id": 2,
+    "name": "Standard",
+    "price": 99.99,
+    "limit": "500 shipments/month",
+    "discount": "10%"
+  },
+  {
+    "id": 3,
+    "name": "Premium",
+    "price": 199.99,
+    "limit": "Unlimited shipments",
+    "discount": "20%"
+  }
+]

@@ -20,6 +20,10 @@ from django.urls import path, include
 from django.contrib import admin
 from django.urls import path, include
 from django.http import HttpResponse
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -29,5 +33,8 @@ urlpatterns = [
     path('api/home/', include('home.urls')),
     path('shipments/', include('shipments.urls')),
     path('api/agents/', include('agents.urls')),
-
+    path('api/admin/', include('admindashboard.urls')),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),       # login
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),       # refresh
+    
 ]
