@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Plan, Testimonial, CompanyInfo, ContactMessage
 
+
 class PlanSerializer(serializers.ModelSerializer):
     class Meta:
         model = Plan
@@ -9,7 +10,12 @@ class PlanSerializer(serializers.ModelSerializer):
 class TestimonialSerializer(serializers.ModelSerializer):
     class Meta:
         model = Testimonial
-        fields = '__all__'
+        fields = ['id', 'name', 'feedback', 'company', 'rating', 'created_at']
+        extra_kwargs = {
+            'name': {'required': False, 'allow_null': True},
+            'user': {'write_only': True},
+            'created_at': {'read_only': True},
+        }
 
 class CompanyInfoSerializer(serializers.ModelSerializer):
     class Meta:

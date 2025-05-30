@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import Agent
 from shipments.models import Shipment
-from users.serializers import UserSerializer 
+from users.serializers import UserSerializer
 
 
 class AgentSerializer(serializers.ModelSerializer):

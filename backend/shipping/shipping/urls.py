@@ -19,13 +19,13 @@ from django.contrib import admin
 from django.urls import path, include
 from django.http import HttpResponse
 
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/users/', include('users.urls')),
     path('api/', include('shipments.urls')),
+    path('api/account/', include('accounts.urls')),
     path('api/home/', include('home.urls')),
     path('shipments/', include('shipments.urls')),
-    path('agents/', include('agents.urls')), 
+    path('api/agents/', include('agents.urls')),
 
 ]

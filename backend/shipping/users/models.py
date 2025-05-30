@@ -7,10 +7,10 @@ class CustomUser(AbstractUser):
         ('agent', 'Agent'),
         ('admin', 'Admin'),
     )
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES)
+    # role = models.CharField(max_length=10, choices=ROLE_CHOICES)
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='customer')
     email = models.EmailField(unique=True)
     phone_number = models.CharField(max_length=15, blank=True, null=True)
-    document = models.FileField(upload_to='documents/', null=True, blank=True)
-
+    city = models.CharField(max_length=100, blank=True, null=True)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']

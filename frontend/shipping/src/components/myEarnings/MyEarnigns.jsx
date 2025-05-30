@@ -110,7 +110,7 @@ export default function MyEarnings() {
               <p className="text-xs text-gray-500 uppercase font-semibold">
                 Role
               </p>
-              <p className="font-medium text-gray-800">
+              <p className="font-medium uppercase text-gray-800">
                 {user?.role || "Not specified"}
               </p>
             </div>
