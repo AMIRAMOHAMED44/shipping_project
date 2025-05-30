@@ -1,7 +1,7 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { toast } from 'react-toastify';
 import AuthContext from "../../context/AuthContext.jsx";
-import bgImage from '../../assets/17.jpg'; // Reuse CreateShipment.jsx background
+import bgImage from '../../assets/17.jpg';
 import { useNavigate } from "react-router-dom";
 
 export default function Dashboard({ profile, logout }) {
@@ -11,6 +11,13 @@ export default function Dashboard({ profile, logout }) {
   // Debugging logs
   console.log('Dashboard - Profile:', profile);
   console.log('Dashboard - isLoading:', isLoading);
+
+  // Redirect agents to available shipments
+  useEffect(() => {
+    if (profile?.role === "agent") {
+      navigate("/agents/available-shipments");
+    }
+  }, [profile, navigate]);
 
   // Handle missing profile data
   if (!profile) {
@@ -34,15 +41,9 @@ export default function Dashboard({ profile, logout }) {
   }
 
   let expire_date = profile.plan_expiry;
-  if (profile.current_plan.name === "regular") {
+  if (profile.current_plan?.name === "regular") {
     expire_date = "No expiry date";
   }
-
-if (profile.role === "agent") {
-    navigate("/agents/available-shipments");
-    return null; 
-}
-
 
   return (
     <div
@@ -64,7 +65,7 @@ if (profile.role === "agent") {
             {profile.current_plan ? (
               <div className="space-y-2 text-sm sm:text-base text-gray-800">
                 <p><strong className="text-gray-700">Plan:</strong> {profile.current_plan.name}</p>
-                <p><strong className="text-gray-700">Price:</strong> USB {profile.current_plan.price?.toFixed(2)}</p>
+                <p><strong className="text-gray-700">Price:</strong> USD {profile.current_plan.price?.toFixed(2)}</p>
                 <p><strong className="text-gray-700">Weight Limit:</strong> {profile.current_plan.weight_limit} kg</p>
                 <p><strong className="text-gray-700">Features:</strong></p>
                 {Array.isArray(profile.current_plan.features) ? (
@@ -86,6 +87,7 @@ if (profile.role === "agent") {
               <strong className="text-gray-700">Plan Expiry:</strong> {expire_date}
             </p>
           </div>
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               onClick={() => {

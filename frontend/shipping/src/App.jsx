@@ -121,6 +121,8 @@ import { useContext } from "react";
 import AuthContext from "./context/AuthContext.jsx";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import AiChat from "./components/AiChat/AiChat.jsx";
+
 
 function App() {
   const { user, isAuthenticated, isLoading, logout } = useContext(AuthContext);
@@ -238,6 +240,7 @@ function App() {
           </Routes>
         </main>
         <Footer />
+        <AiChat />
       </div>
     </BrowserRouter>
   );

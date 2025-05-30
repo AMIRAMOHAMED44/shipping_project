@@ -4,6 +4,8 @@
  pip install djangorestframework-simplejwt
  pip install python-decouple
  python manage.py populate_cities
+ pip install psycopg2-binary
+
 
 
 asgiref==3.8.1
