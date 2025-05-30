@@ -155,31 +155,6 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-<<<<<<< HEAD
-    // try {
-    //   const res = await axios.post("http://localhost:8000/api/users/login/", {
-    //     email,
-    //     password,
-    //   });
-
-    //   const { access, refresh } = res.data;
-
-    //   if (access && refresh) {
-    //     localStorage.setItem("access", access);
-    //     localStorage.setItem("refresh", refresh);
-    //     console.log("Access Token:", access);
-    //     console.log("Refresh Token:", refresh);
-    //     alert("Login successful");
-    //     onLogin?.(); // Optional callback
-    //   } else {
-    //     alert("Login failed: Tokens missing");
-    //   }
-    // } catch (err) {
-    //   console.error(err.response?.data || err.message);
-    //   alert("Login failed");
-    // }
-    login(email, password);
-=======
     if (!validateForm()) return;
     setIsLoading(true);
     try {
@@ -199,7 +174,6 @@ export default function Login() {
     } finally {
       setIsLoading(false);
     }
->>>>>>> origin/huda/auth
   };
 
   return (

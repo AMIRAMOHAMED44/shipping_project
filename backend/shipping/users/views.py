@@ -21,6 +21,7 @@ class RegisterView(generics.CreateAPIView):
     def perform_create(self, serializer):
         try:
             user = serializer.save()
+            logger.info(f"User created: {user.username}, email: {user.email}")
             if user.role == 'agent':
                 Agent.objects.create(user=user, city=user.city)
             logger.info(f"User registered: {user.username}, role: {user.role}")
