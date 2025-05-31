@@ -34,11 +34,11 @@ const Agents = () => {
       });
   }, []);
 
- const filteredAgents = agents.filter((agent) => {
-  if (!agent.username) return false;
-  const searchStr = `${agent.username} ${agent.email}`.toLowerCase();
-  return searchStr.includes(searchTerm.toLowerCase());
-});
+  const filteredAgents = agents.filter((agent) => {
+    if (!agent.username) return false;
+    const searchStr = `${agent.username} ${agent.email}`.toLowerCase();
+    return searchStr.includes(searchTerm.toLowerCase());
+  });
 
 
   const handleToggleStatus = (id) => {
@@ -46,9 +46,9 @@ const Agents = () => {
       prevAgents.map((agent) =>
         agent.id === id
           ? {
-              ...agent,
-              status: agent.status === "Active" ? "Inactive" : "Active",
-            }
+            ...agent,
+            status: agent.status === "Active" ? "Inactive" : "Active",
+          }
           : agent
       )
     );
@@ -97,8 +97,8 @@ const Agents = () => {
               <th className="px-6 py-3">Username</th>
               <th className="px-6 py-3">Email</th>
               <th className="px-6 py-3">City</th>
-              <th className="px-6 py-3">Total Earnings</th>
-              <th className="px-6 py-3 rounded-tr-xl">Actions</th>
+              <th className="px-6 py-3">Actions</th>
+              <th className="px-6 py-3">Status</th>
             </tr>
           </thead>
           <tbody>
@@ -106,9 +106,8 @@ const Agents = () => {
               filteredAgents.map((agent, index) => (
                 <tr
                   key={agent.id}
-                  className={`border-t hover:bg-gray-50 transition-all duration-200 ${
-                    index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                  }`}
+                  className={`border-t hover:bg-gray-50 transition-all duration-200 ${index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                    }`}
                 >
                   <td className="px-6 py-4">{index + 1}</td>
                   <td className="px-6 py-4">{agent.username}</td>
@@ -116,6 +115,15 @@ const Agents = () => {
                   <td className="px-6 py-4">{agent.city}</td>
                   <td className="px-6 py-4">{agent.total_earnings}</td>
                   <td className="px-6 py-4 flex gap-2 flex-wrap text-sm">
+                    <td className="p-2">
+                      <span
+                        className={`px-2 py-1 rounded-full text-white ${agent.active ? "bg-green-500" : "bg-red-500"
+                          }`}
+                      >
+                        {agent.active ? "Active" : "Inactive"}
+                      </span>
+                    </td>
+
                     <button
                       onClick={() => handleToggleStatus(agent.id)}
                       className="text-blue-600 hover:underline"

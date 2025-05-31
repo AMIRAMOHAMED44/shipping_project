@@ -8,6 +8,7 @@ class CustomUser(AbstractUser):
         ('admin', 'Admin'),
     )
     # role = models.CharField(max_length=10, choices=ROLE_CHOICES)
+    
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='customer')
     email = models.EmailField(unique=True)
     phone_number = models.CharField(max_length=15, blank=True, null=True)

@@ -123,6 +123,13 @@ from .models import Agent
 from shipments.models import Shipment
 from .serializers import AgentSerializer, ShipmentSerializer
 
+# admin controls delivery request
+from rest_framework import viewsets, permissions
+from .models import DeliveryRequest
+from .serializers import DeliveryRequestSerializer
+
+
+
 logger = logging.getLogger(__name__)
 
 @api_view(['GET'])
@@ -239,4 +246,16 @@ def confirm_delivery(request, shipment_id):
 #     except Exception as e:
 #         logger.error(f"Error in all_agents: {str(e)}", exc_info=True)
 #         return Response({'error': 'Internal server error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class DeliveryRequestViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = DeliveryRequestSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        if hasattr(user, 'agent'):
+            agent = user.agent
+            return DeliveryRequest.objects.filter(agent=agent)
+        else:
+            return DeliveryRequest.objects.none()
 

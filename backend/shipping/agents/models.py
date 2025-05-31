@@ -2,6 +2,7 @@
 from django.db import models
 from django.conf import settings
 
+
 class Agent(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     city = models.CharField(max_length=100)
@@ -19,3 +20,14 @@ class Agent(models.Model):
     #     delivered_shipments = self.shipments.filter(status='DELIVERED')
     #     total = sum(shipment.cost * 0.7 for shipment in delivered_shipments if shipment.cost)
     #     return round(total, 2)
+
+
+
+# admin delivery request
+class DeliveryRequest(models.Model):
+    agent = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name='delivery_requests')
+    shipment = models.ForeignKey('shipments.Shipment', on_delete=models.CASCADE, related_name='delivery_requests')
+    requested_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('agent', 'shipment')  # كل agent يطلب الشحنة مرة واحدة فقط

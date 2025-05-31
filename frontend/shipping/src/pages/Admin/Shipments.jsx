@@ -1,27 +1,51 @@
 import React, { useEffect, useState } from "react";
-import shipmentsData from "../../mock-data/Shipments.json";
+import axios from "axios"
 
 const Shipments = () => {
     const [shipments, setShipments] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [showForm, setShowForm] = useState(false);
     const [newShipment, setNewShipment] = useState({
-        trackingNumber: "",
-        customerName: "",
+        tracking_id: "",
+        customer: "",
         destination: "",
         status: "Pending",
     });
 
     useEffect(() => {
-        setShipments(shipmentsData);
+        const token = localStorage.getItem("access"); // اتأكد إنه نفس الاسم اللي خزنتي بيه التوكن
+        console.log("Token from localStorage:", token);
+
+        if (!token) {
+            console.warn("No access token found, user might not be logged in.");
+            return;
+        }
+
+        axios
+            .get("http://127.0.0.1:8000//api/agents/delivery-requests/", {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            .then((res) => {
+                console.log("Shipments data:", res.data);
+                setShipments(res.data.results); // لو الـ API بيرجع results
+                // أو استخدمي setShipments(res.data) لو الـ API بيرجع list مباشرة
+            })
+            .catch((err) => {
+                console.error("Error fetching shipments:", err);
+            });
     }, []);
+
+
+
 
     const handleSearch = (e) => {
         setSearchTerm(e.target.value);
     };
 
     const filteredShipments = shipments.filter((s) =>
-        `${s.trackingNumber} ${s.customerName} ${s.destination}`
+        `${s.tracking_id} ${s.customer} ${s.destination}`
             .toLowerCase()
             .includes(searchTerm.toLowerCase())
     );
@@ -30,13 +54,12 @@ const Shipments = () => {
         setEditingShipment(null);
         setShowForm(true);
         setNewShipment({
-            trackingNumber: "",
-            customerName: "",
+            tracking_id: "",
+            customer: "",
             destination: "",
             status: "Pending",
         });
     };
-
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -47,7 +70,6 @@ const Shipments = () => {
         e.preventDefault();
 
         if (editingShipment) {
-            // تعديل الشحنة
             setShipments((prev) =>
                 prev.map((shipment) =>
                     shipment.id === editingShipment.id ? { ...newShipment } : shipment
@@ -55,15 +77,14 @@ const Shipments = () => {
             );
             setEditingShipment(null);
         } else {
-            // إضافة شحنة جديدة
             const newId = shipments.length + 1;
             const shipmentToAdd = { ...newShipment, id: newId };
             setShipments((prev) => [...prev, shipmentToAdd]);
         }
 
         setNewShipment({
-            trackingNumber: "",
-            customerName: "",
+            tracking_id: "",
+            customer: "",
             destination: "",
             status: "Pending",
         });
@@ -76,22 +97,22 @@ const Shipments = () => {
         const confirmDelete = window.confirm("Are you sure you want to delete this shipment?");
         if (confirmDelete) {
             setShipments((prev) => prev.filter((shipment) => shipment.id !== id));
-            // لو الشحنة المعروضة حالياً هي دي، نفضيها
             if (selectedShipment && selectedShipment.id === id) {
                 setSelectedShipment(null);
             }
         }
     };
+
     const [editingShipment, setEditingShipment] = useState(null);
     const handleEditClick = (shipment) => {
         setEditingShipment(shipment);
         setShowForm(true);
         setNewShipment({
-            trackingNumber: shipment.trackingNumber,
-            customerName: shipment.customerName,
+            tracking_id: shipment.tracking_id,
+            customer: shipment.customer,
             destination: shipment.destination,
             status: shipment.status,
-            id: shipment.id,  // لو هتستخدمه للتحديث
+            id: shipment.id,
         });
     };
 
@@ -127,7 +148,6 @@ const Shipments = () => {
                             <th className="px-6 py-3">Destination</th>
                             <th className="px-6 py-3">Status</th>
                             <th className="px-6 py-3 rounded-tr-xl">Actions</th>
-
                         </tr>
                     </thead>
                     <tbody>
@@ -137,10 +157,9 @@ const Shipments = () => {
                                 onClick={() => setSelectedShipment(shipment)}
                                 className={`cursor-pointer border-t hover:bg-gray-50 transition-all duration-200 ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
                             >
-
                                 <td className="px-6 py-4">{index + 1}</td>
-                                <td className="px-6 py-4">{shipment.trackingNumber}</td>
-                                <td className="px-6 py-4">{shipment.customerName}</td>
+                                <td className="px-6 py-4">{shipment.tracking_id}</td>
+                                <td className="px-6 py-4">{shipment.customer}</td>
                                 <td className="px-6 py-4">{shipment.destination}</td>
                                 <td className="px-6 py-4">
                                     <span
@@ -176,8 +195,6 @@ const Shipments = () => {
                                         View
                                     </button>
                                 </td>
-
-
                             </tr>
                         ))}
                     </tbody>
@@ -185,8 +202,8 @@ const Shipments = () => {
                 {selectedShipment && (
                     <div className="mt-6 bg-white p-6 rounded-xl shadow-md border max-w-xl">
                         <h3 className="text-lg font-semibold mb-4">Shipment Details</h3>
-                        <p><strong>Tracking Number:</strong> {selectedShipment.trackingNumber}</p>
-                        <p><strong>Customer Name:</strong> {selectedShipment.customerName}</p>
+                        <p><strong>Tracking Number:</strong> {selectedShipment.tracking_id}</p>
+                        <p><strong>Customer Name:</strong> {selectedShipment.customer}</p>
                         <p><strong>Destination:</strong> {selectedShipment.destination}</p>
                         <p><strong>Status:</strong>
                             <span className={`ml-2 px-3 py-1 text-xs rounded-full font-medium ${selectedShipment.status === "Delivered"
@@ -206,7 +223,6 @@ const Shipments = () => {
                         </button>
                     </div>
                 )}
-
             </div>
 
             {showForm && (
@@ -222,8 +238,8 @@ const Shipments = () => {
                         <label className="block text-sm mb-1">Tracking Number</label>
                         <input
                             type="text"
-                            name="trackingNumber"
-                            value={newShipment.trackingNumber}
+                            name="tracking_id"
+                            value={newShipment.tracking_id}
                             onChange={handleChange}
                             required
                             className="w-full border px-3 py-2 rounded"
@@ -234,8 +250,8 @@ const Shipments = () => {
                         <label className="block text-sm mb-1">Customer Name</label>
                         <input
                             type="text"
-                            name="customerName"
-                            value={newShipment.customerName}
+                            name="customer"
+                            value={newShipment.customer}
                             onChange={handleChange}
                             required
                             className="w-full border px-3 py-2 rounded"
@@ -254,7 +270,6 @@ const Shipments = () => {
                         />
                     </div>
 
-                    {/* هنا إضافة اختيار حالة الشحنة */}
                     <div className="mb-4">
                         <label className="block text-sm mb-1">Status</label>
                         <select
@@ -286,8 +301,6 @@ const Shipments = () => {
                         </button>
                     </div>
                 </form>
-
-
             )}
         </div>
     );
