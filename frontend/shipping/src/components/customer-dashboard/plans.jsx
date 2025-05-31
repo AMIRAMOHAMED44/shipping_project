@@ -119,7 +119,7 @@ export default function Payment() {
                     </button>
                   ) : (
                     <PayPalButtons
-                      style={{ layout: "vertical", label: "pay", color: "blue" }}
+                      style={{ layout: "vertical", label: "pay", color: "gold" }}
                       createOrder={(data, actions) => {
                         return actions.order.create({
                           purchase_units: [

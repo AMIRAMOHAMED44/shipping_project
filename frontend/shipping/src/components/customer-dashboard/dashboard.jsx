@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { toast } from 'react-toastify';
 import AuthContext from "../../context/AuthContext.jsx";
-import bgImage from '../../assets/17.jpg'; // Reuse CreateShipment.jsx background
+import bgImage from '../../assets/32.jpg'; // Reuse CreateShipment.jsx background
 import { useNavigate } from "react-router-dom";
 
 export default function Dashboard({ profile, logout }) {

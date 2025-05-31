@@ -1,19 +1,12 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny
-from .models import Shipment, City
-from .serializers import ShipmentSerializer, CitySerializer
-from .utils import EGYPTIAN_CITIES
-from rest_framework.exceptions import ValidationError
-from rest_framework import viewsets, status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.exceptions import ValidationError
 from .models import Shipment, City
 from .serializers import ShipmentSerializer, CitySerializer
 from .utils import EGYPTIAN_CITIES
+from accounts.models import CustomerProfile  # Import CustomerProfile
 
 class CityViewSet(viewsets.ModelViewSet):
     queryset = City.objects.all()
@@ -29,19 +22,25 @@ class CityViewSet(viewsets.ModelViewSet):
 
 class ShipmentViewSet(viewsets.ModelViewSet):
     serializer_class = ShipmentSerializer
-    permission_classes = [IsAuthenticated]  # فقط المستخدمين المسجلين
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # إرجاع الشحنات التي أنشأها المستخدم الحالي فقط
         return Shipment.objects.filter(user=self.request.user).order_by('-created_at')
 
     def perform_create(self, serializer):
         user = self.request.user
-        # نفترض أن للمستخدم حقل current_plan مع weight_limit
-        plan = getattr(user, 'current_plan', None)
-        shipment_weight = serializer.validated_data.get('weight')
-        if plan and shipment_weight > plan.weight_limit:
-            raise ValidationError(f"Shipment weight exceeds your plan limit of {plan.weight_limit} kg")
+        try:
+            customer_profile = CustomerProfile.objects.get(user=user)
+            plan = customer_profile.current_plan
+            if not plan:
+                raise ValidationError("No plan assigned to your account.")
+            shipment_weight = serializer.validated_data.get('weight')
+            if shipment_weight > plan.weight_limit:
+                raise ValidationError(
+                    f"❌ Weight exceeds your plan limit of {plan.weight_limit} kg for {plan.name.capitalize()} plan")
+        except CustomerProfile.DoesNotExist:
+            raise ValidationError("Customer profile not found. Please contact support.")
+
         serializer.save(user=user)
 
     def validate_city(self, city_name):
@@ -67,12 +66,6 @@ class ShipmentViewSet(viewsets.ModelViewSet):
         shipment.status = 'CANCELLED'
         shipment.save()
         return Response({"status": "Shipment cancelled successfully"})
-
-
-    # @action(detail=False, methods=['get'])
-    # def cities_list(self, request):
-    #     return Response(EGYPTIAN_CITIES)
-    # ------------------------------------------------
 
     @action(detail=False, methods=['get'], permission_classes=[AllowAny])
     def track(self, request):

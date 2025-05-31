@@ -12,8 +12,28 @@ export default function CreateShipment() {
     Business: 50,
   };
 
-  // عيّن هنا الخطة الحالية للمستخدم (يمكن تعديلها أو جلبها لاحقًا من جهة العميل)
-  const currentPlan = "Regular"; // عدل هنا إلى "Premium" أو "Business" حسب الخطة
+ const [currentPlan, setCurrentPlan] = useState('');
+const [weightLimit, setWeightLimit] = useState(null);
+
+useEffect(() => {
+  const fetchUserPlan = async () => {
+    try {
+      const access = localStorage.getItem('access');
+      const res = await axios.get('http://localhost:8000/api/account/', {
+        headers: {
+          Authorization: `Bearer ${access}`,
+        },
+      });
+      const plan = res.data.current_plan;
+      setCurrentPlan(plan.name);
+      setWeightLimit(plan.weight_limit);
+    } catch (error) {
+      console.error("Failed to fetch user plan:", error);
+    }
+  };
+
+  fetchUserPlan();
+}, []);
 
   const [formData, setFormData] = useState({
     origin: '',

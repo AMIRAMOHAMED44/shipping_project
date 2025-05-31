@@ -22,7 +22,7 @@ class RegisterView(generics.CreateAPIView):
         try:
             user = serializer.save()
             if user.role == 'agent':
-                Agent.objects.create(user=user, city=user.city)
+                Agent.objects.get_or_create(user=user, defaults={'city': user.city})
             logger.info(f"User registered: {user.username}, role: {user.role}")
             return user
         except IntegrityError as e:

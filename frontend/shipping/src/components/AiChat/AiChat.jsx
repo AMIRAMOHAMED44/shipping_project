@@ -213,8 +213,9 @@ Let's make shipping simple for you. What would you like to send today?`,
 
   const isAgent = user.role === "agent";
   const themeColors = isAgent
-    ? "from-blue-600 to-blue-700"
-    : "from-emerald-600 to-emerald-700";
+  ? "from-[#4e9989] to-[#4e9989]"
+  : "from-[#2e605a] to-[#2e605a]";
+
 
   const Icon = isAgent ? Truck : Package;
 
